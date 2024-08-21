@@ -1,12 +1,14 @@
 package com.example.finalproject
 
+import com.example.finalproject.R
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.finalproject.databinding.ActivityMainBinding
 import androidx.fragment.app.Fragment
 import com.example.finalproject.fragments.LoginFragment
 import com.example.finalproject.fragments.SignUpFragment
-import android.content.Intent
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupActionBarWithNavController
 
 
 
@@ -15,31 +17,36 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        // Load LoginFragment by default
+        /* Load LoginFragment by default
         if (savedInstanceState == null) {
             loadFragment(LoginFragment())
-        }
-
-
-        // Button listeners
+        }*/
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        setupActionBarWithNavController(navController)
+    }
+        /* Button listeners
         binding.buttonLogin.setOnClickListener {
             loadFragment(LoginFragment())
         }
         binding.buttonSignUp.setOnClickListener {
             loadFragment(SignUpFragment())
-        }
-    }
-    private fun loadFragment(fragment: Fragment) {
+        }*/
+
+    /*private fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()
+    }*/
+    override fun onSupportNavigateUp(): Boolean {
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
-/*
-add this after successful sign-up or log in
-    val intent = Intent(this, MainActivityApp::class.java)
-    startActivity(intent)
-    finish()  // Optional: Call finish() if you want to close the login activity
- */
 }
+

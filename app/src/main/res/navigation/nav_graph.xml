@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/mainFeedFragment">
+
+    <fragment
+        android:id="@+id/mainFeedFragment"
+        android:name="com.example.finalproject.fragments.MainFeedFragment"
+        android:label="Main Feed"
+        tools:layout="@layout/fragment_main_feed" >
+        <action
+            android:id="@+id/action_mainFeedFragment_to_uploadRecommendationFragment"
+            app:destination="@id/uploadRecommendationFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/uploadRecommendationFragment"
+        android:name="com.example.finalproject.fragments.UploadRecommendationFragment"
+        android:label="Upload Recommendation"
+        tools:layout="@layout/fragment_upload_recommendation" />
+
+</navigation>

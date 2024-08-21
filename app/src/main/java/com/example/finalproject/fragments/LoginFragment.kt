@@ -1,5 +1,5 @@
 package com.example.finalproject.fragments
-
+import com.example.finalproject.R
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -10,25 +10,12 @@ import com.example.finalproject.databinding.FragmentLoginBinding
 import com.google.firebase.auth.FirebaseAuth
 import android.widget.Toast
 import com.example.finalproject.MainActivityApp
-import com.google.firebase.database.FirebaseDatabase
+import androidx.navigation.fragment.findNavController
 
-/**
- * A simple [Fragment] subclass.
- * Use the [LoginFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
-
-    /*override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }*/
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +24,7 @@ class LoginFragment : Fragment() {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         auth = FirebaseAuth.getInstance()
 
+        // Log in button click listener
         binding.buttonLogin.setOnClickListener {
             val email = binding.editTextEmail.text.toString()
             val password = binding.editTextPassword.text.toString()
@@ -47,6 +35,12 @@ class LoginFragment : Fragment() {
                 Toast.makeText(requireContext(), "Please fill out all fields", Toast.LENGTH_SHORT).show()
             }
         }
+
+        // Sign up button click listener
+        binding.buttonGoToSignUp.setOnClickListener {
+            findNavController().navigate(R.id.action_logInFragment_to_signUpFragment)
+        }
+
         return binding.root
     }
 
@@ -55,7 +49,6 @@ class LoginFragment : Fragment() {
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
                     // Log-in success, update UI with the signed-in user's information
-                    val user = auth.currentUser
                     Toast.makeText(requireContext(), "Log-in successful!", Toast.LENGTH_SHORT).show()
 
                     val intent = Intent(requireContext(), MainActivityApp::class.java)
@@ -74,4 +67,3 @@ class LoginFragment : Fragment() {
         _binding = null
     }
 }
-

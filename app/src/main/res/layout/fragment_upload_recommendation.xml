@@ -1,0 +1,52 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/restaurantNameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Restaurant Name"/>
+
+    <EditText
+        android:id="@+id/addressEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Address"/>
+
+    <EditText
+        android:id="@+id/typeEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Type"/>
+
+    <EditText
+        android:id="@+id/descriptionEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Description"
+        android:lines="4"
+        android:gravity="top"/>
+
+        <Button
+            android:id="@+id/uploadPostPhotoButton"
+            android:layout_width="185dp"
+            android:layout_height="wrap_content"
+            android:text="Upload Post Photo"
+            />
+
+        <Button
+            android:id="@+id/uploadMorePhotosButton"
+            android:layout_width="185dp"
+            android:layout_height="wrap_content"
+            android:text="Upload More Photos" />
+
+    <Button
+        android:id="@+id/submitRecommendationButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submit Recommendation"/>
+</LinearLayout>

@@ -19,7 +19,6 @@ class SignUpFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
-    /
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,7 +28,7 @@ class SignUpFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
 
-        binding.buttonSignIn.setOnClickListener {
+        binding.buttonGoToLogIn.setOnClickListener {
             val username = binding.editTextUserName.text.toString()
             val email = binding.editTextEmail.text.toString()
             val password = binding.editTextPassword.text.toString()
@@ -62,7 +61,7 @@ class SignUpFragment : Fragment() {
                     Toast.makeText(requireContext(), "Sign-up successful!", Toast.LENGTH_SHORT).show()
                     val intent = Intent(requireContext(), MainActivityApp::class.java)
                     startActivity(intent)
-                    requireActivity().finish() // Optional: close the current activity
+                    requireActivity().finish()
 
                 } else {
                     Toast.makeText(requireContext(), "Sign-up failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()

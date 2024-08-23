@@ -4,12 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- This is the NavHostFragment that will host your LogIn and SignUp fragments -->
-    <fragment
-        android:id="@+id/nav_host_fragment"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment_auth"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:navGraph="@navigation/nav_graph_auth"
-        app:defaultNavHost="true" />
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_graph_auth" />
+
 </RelativeLayout>

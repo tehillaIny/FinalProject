@@ -36,11 +36,11 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        dataBinding = true
     }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -54,7 +54,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    //implementation("androidx.appcompat:appcompat:1.6.1")
     implementation (libs.glide)
     annotationProcessor (libs.glide.compiler)
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
@@ -63,6 +63,11 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
-    implementation ("androidx.navigation:navigation-runtime-ktx:2.7.1")
-    implementation ("androidx.navigation:navigation-compose:2.7.1")
+    implementation ("androidx.navigation:navigation-runtime-ktx:2.7.7")
+    implementation ("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
+    implementation("androidx.core:core-ktx:1.13.1") // Or a compatible version
+    implementation("androidx.appcompat:appcompat:1.7.0") // Or a compatible version
+    implementation("androidx.lifecycle:lifecycle-common:2.6.2")
 }

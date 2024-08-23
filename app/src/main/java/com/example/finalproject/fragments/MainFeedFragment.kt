@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.example.finalproject.databinding.FragmentMainFeedBinding
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.finalproject.R
@@ -13,6 +15,8 @@ import com.example.finalproject.models.Recommendation
 
 class MainFeedFragment : Fragment() {
 
+    private var _binding: FragmentMainFeedBinding? = null
+    private val binding get() = _binding!!
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: RecommendationAdapter
 
@@ -20,7 +24,8 @@ class MainFeedFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_main_feed, container, false)
+        _binding = FragmentMainFeedBinding.inflate(inflater, container, false)
+        val view = binding.root
 
         recyclerView = view.findViewById(R.id.recyclerViewRecommendations)
         recyclerView.layoutManager = LinearLayoutManager(context)
@@ -31,12 +36,21 @@ class MainFeedFragment : Fragment() {
             Recommendation("Restaurant B", "Description B", "https://example.com/image2.jpg")
         )
 
-        /*adapter = RecommendationAdapter(recommendations) { recommendation ->
-            // Handle click event
-        }*/
+        adapter = RecommendationAdapter(recommendations)
 
         recyclerView.adapter = adapter
 
+
+        binding.buttonGoToaddRecommendation.setOnClickListener {
+            findNavController().navigate(R.id.action_mainFeedFragment_to_uploadRecommendationFragment)
+        }
         return view
+    }
+    override fun onDestroyView() {
+
+        super.onDestroyView()
+
+        _binding = null
+
     }
 }

@@ -16,11 +16,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:srcCompat="@tools:sample/avatars" />
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/nav_host_fragment_main"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:navGraph="@navigation/nav_graph_main"
+            app:defaultNavHost="true" />
     </FrameLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

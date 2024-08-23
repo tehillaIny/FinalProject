@@ -54,7 +54,15 @@ class UploadRecommendationFragment : Fragment() {
         }
 
         binding.submitRecommendationButton.setOnClickListener {
-            uploadRecommendation()
+            if (selectedImageUri == null) {
+
+                Toast.makeText(requireContext(), "Please select a main image", Toast.LENGTH_SHORT).show()
+
+            } else {
+
+                uploadRecommendation()
+
+            }
         }
     }
 
@@ -72,6 +80,7 @@ class UploadRecommendationFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         if (requestCode == 1000 && resultCode == Activity.RESULT_OK) {
             selectedImageUri = data?.data
             binding.uploadPostPhotoButton.text = "Image Selected"
@@ -84,7 +93,8 @@ class UploadRecommendationFragment : Fragment() {
         val type = binding.typeEditText.text.toString()
         val description = binding.descriptionEditText.text.toString()
 
-        if (restaurantName.isEmpty() || address.isEmpty() || type.isEmpty() || description.isEmpty() || selectedImageUri == null) {
+        //must fill fields
+        if (restaurantName.isEmpty() || address.isEmpty() || type.isEmpty() || description.isEmpty()) {
             Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
             return
         }
@@ -146,8 +156,7 @@ class UploadRecommendationFragment : Fragment() {
         database.reference.child("recommendations").child(recommendationId).setValue(recommendation)
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Recommendation submitted", Toast.LENGTH_SHORT).show()
-                //findNavController().navigate(R.id.action_uploadRecommendationFragment_to_mainFeedFragment)
-
+                findNavController().navigate(R.id.action_uploadRecommendationFragment_to_mainFeedFragment)
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Failed to submit recommendation", Toast.LENGTH_SHORT).show()

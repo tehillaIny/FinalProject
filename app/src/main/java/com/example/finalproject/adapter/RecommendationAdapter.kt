@@ -35,9 +35,9 @@ class RecommendationAdapter(private val recommendations: List<Recommendation>) :
         private val image: ImageView = itemView.findViewById(R.id.imageView)
 
         fun bind(recommendation: Recommendation, onItemClick: (Recommendation) -> Unit) {
-            title.text = recommendation.title
+            title.text = recommendation.restaurantName
             description.text = recommendation.description
-            Glide.with(itemView.context).load(recommendation.imageUrl).into(image)
+            Glide.with(itemView.context).load(recommendation.mainImageUrl).into(image)
 
             itemView.setOnClickListener {
                 onItemClick(recommendation)

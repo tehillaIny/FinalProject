@@ -28,10 +28,10 @@
         android:padding="16dp"/>
 
     <Button
-        android:id="@+id/buttonSignIn"
+        android:id="@+id/buttonSignUp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign In"
+        android:text="Sign Up"
         android:padding="16dp"/>
 
     <Button

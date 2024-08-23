@@ -70,4 +70,6 @@ dependencies {
     implementation("androidx.core:core-ktx:1.13.1") // Or a compatible version
     implementation("androidx.appcompat:appcompat:1.7.0") // Or a compatible version
     implementation("androidx.lifecycle:lifecycle-common:2.6.2")
+    implementation ("com.google.firebase:firebase-database:20.2.2")
+    implementation ("com.google.firebase:firebase-storage:20.2.0")
 }

@@ -54,15 +54,7 @@ class UploadRecommendationFragment : Fragment() {
         }
 
         binding.submitRecommendationButton.setOnClickListener {
-            if (selectedImageUri == null) {
-
-                Toast.makeText(requireContext(), "Please select a main image", Toast.LENGTH_SHORT).show()
-
-            } else {
-
                 uploadRecommendation()
-
-            }
         }
     }
 
@@ -84,21 +76,37 @@ class UploadRecommendationFragment : Fragment() {
         if (requestCode == 1000 && resultCode == Activity.RESULT_OK) {
             selectedImageUri = data?.data
             binding.uploadPostPhotoButton.text = "Image Selected"
+        } else if (requestCode == 2000 && resultCode == Activity.RESULT_OK) {
+            data?.clipData?.let { clipData ->
+                for (i in 0 until clipData.itemCount) {
+                    selectedMoreImageUris.add(clipData.getItemAt(i).uri)
+                }
+                binding.uploadMorePhotosButton.text = "${selectedMoreImageUris.size} Images Selected"
+            }
         }
     }
 
     private fun uploadRecommendation() {
+        if (auth.currentUser == null) {
+            Toast.makeText(requireContext(), "User not authenticated. Please log in.", Toast.LENGTH_SHORT).show()
+            return
+        }
         val restaurantName = binding.restaurantNameEditText.text.toString()
         val address = binding.addressEditText.text.toString()
         val type = binding.typeEditText.text.toString()
         val description = binding.descriptionEditText.text.toString()
 
-        //must fill fields
+        // Ensure all required fields are filled
         if (restaurantName.isEmpty() || address.isEmpty() || type.isEmpty() || description.isEmpty()) {
             Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
             return
         }
-
+        // Check if main image is selected
+        if (selectedImageUri == null) {
+            Toast.makeText(requireContext(), "Please select a main image", Toast.LENGTH_SHORT).show()
+            return
+        }
+        // Upload main image
         val ref = storage.reference.child("recommendation_photos/${auth.uid}/${System.currentTimeMillis()}.jpg")
         ref.putFile(selectedImageUri!!)
             .addOnSuccessListener {

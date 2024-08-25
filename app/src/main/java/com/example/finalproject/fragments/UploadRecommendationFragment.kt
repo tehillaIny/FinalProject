@@ -16,6 +16,14 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.example.finalproject.models.Recommendation
 import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Deferred
 
 class UploadRecommendationFragment : Fragment() {
 
@@ -28,7 +36,6 @@ class UploadRecommendationFragment : Fragment() {
 
     private var selectedImageUri: Uri? = null
     private val selectedMoreImageUris = mutableListOf<Uri>()
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,7 +61,7 @@ class UploadRecommendationFragment : Fragment() {
         }
 
         binding.submitRecommendationButton.setOnClickListener {
-                uploadRecommendation()
+            uploadRecommendation()
         }
     }
 
@@ -63,6 +70,7 @@ class UploadRecommendationFragment : Fragment() {
         intent.type = "image/*"
         startActivityForResult(intent, 1000)
     }
+
     private fun pickMultipleImagesFromGallery() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
@@ -72,7 +80,6 @@ class UploadRecommendationFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         if (requestCode == 1000 && resultCode == Activity.RESULT_OK) {
             selectedImageUri = data?.data
             binding.uploadPostPhotoButton.text = "Image Selected"
@@ -81,14 +88,19 @@ class UploadRecommendationFragment : Fragment() {
                 for (i in 0 until clipData.itemCount) {
                     selectedMoreImageUris.add(clipData.getItemAt(i).uri)
                 }
-                binding.uploadMorePhotosButton.text = "${selectedMoreImageUris.size} Images Selected"
+                binding.uploadMorePhotosButton.text =
+                    "${selectedMoreImageUris.size} Images Selected"
             }
         }
     }
 
     private fun uploadRecommendation() {
         if (auth.currentUser == null) {
-            Toast.makeText(requireContext(), "User not authenticated. Please log in.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "User not authenticated. Please log in.",
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
         val restaurantName = binding.restaurantNameEditText.text.toString()
@@ -103,11 +115,13 @@ class UploadRecommendationFragment : Fragment() {
         }
         // Check if main image is selected
         if (selectedImageUri == null) {
-            Toast.makeText(requireContext(), "Please select a main image", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Please select a main image", Toast.LENGTH_SHORT)
+                .show()
             return
         }
         // Upload main image
-        val ref = storage.reference.child("recommendation_photos/${auth.uid}/${System.currentTimeMillis()}.jpg")
+        val ref =
+            storage.reference.child("recommendation_photos/${auth.uid}/${System.currentTimeMillis()}.jpg")
         ref.putFile(selectedImageUri!!)
             .addOnSuccessListener {
                 ref.downloadUrl.addOnSuccessListener { uri ->
@@ -121,32 +135,68 @@ class UploadRecommendationFragment : Fragment() {
 
     private fun uploadMorePhotos(restaurantName: String, address: String, type: String, description: String, mainImageUrl: String) {
         val imageUrls = mutableListOf<String>()
-        var uploadedCount = 0
+        val deferredUploads = mutableListOf<Deferred<Unit>>()
 
         if (selectedMoreImageUris.isEmpty()) {
             saveRecommendationToDatabase(restaurantName, address, type, description, mainImageUrl, imageUrls)
             return
         }
 
-        selectedMoreImageUris.forEach { uri ->
-            val ref = storage.reference.child("recommendation_photos/${auth.uid}/${System.currentTimeMillis()}.jpg")
-            ref.putFile(uri)
-                .addOnSuccessListener {
-                    ref.downloadUrl.addOnSuccessListener { downloadUrl ->
-                        imageUrls.add(downloadUrl.toString())
-                        uploadedCount++
-                        if (uploadedCount == selectedMoreImageUris.size) {
-                            saveRecommendationToDatabase(restaurantName, address, type, description, mainImageUrl, imageUrls)
-                        }
+        val scope = CoroutineScope(Dispatchers.IO)
+
+        // Show the progress bar and text view
+        binding.uploadProgressBar.visibility = View.VISIBLE
+        binding.uploadProgressTextView.visibility = View.VISIBLE
+
+        selectedMoreImageUris.forEachIndexed { index, uri ->
+            val deferred: Deferred<Unit> = scope.async {
+                val ref = storage.reference.child("recommendation_photos/${auth.uid}/${System.currentTimeMillis()}.jpg")
+                val uploadTask = ref.putFile(uri)
+
+                try {
+                    val downloadUrl = uploadTask.await().storage.downloadUrl.await()
+                    imageUrls.add(downloadUrl.toString())
+                    // Update progress
+                    withContext(Dispatchers.Main) {
+                        val progress = ((index + 1) / selectedMoreImageUris.size.toFloat()) * 100
+                        binding.uploadProgressBar.progress = progress.toInt()
+                        binding.uploadProgressTextView.text = "Uploading... ${progress.toInt()}%"
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Failed to upload additional photos", Toast.LENGTH_SHORT).show()
                     }
                 }
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(), "Failed to upload additional photos", Toast.LENGTH_SHORT).show()
-                }
+            }
+            deferredUploads.add(deferred)
+        }
+
+        scope.launch {
+            // Wait for all uploads to complete
+            deferredUploads.awaitAll()
+
+            // Hide the progress bar and text view
+            withContext(Dispatchers.Main) {
+                binding.uploadProgressBar.visibility = View.GONE
+                binding.uploadProgressTextView.visibility = View.GONE
+            }
+
+            // Once all images are uploaded, save to the database
+            withContext(Dispatchers.Main) {
+                saveRecommendationToDatabase(restaurantName, address, type, description, mainImageUrl, imageUrls)
+            }
         }
     }
 
-    private fun saveRecommendationToDatabase(restaurantName: String, address: String, type: String, description: String, mainImageUrl: String, imageUrls: List<String>) {
+
+    private fun saveRecommendationToDatabase(
+        restaurantName: String,
+        address: String,
+        type: String,
+        description: String,
+        mainImageUrl: String,
+        imageUrls: List<String>
+    ) {
         val userId = auth.uid ?: return
         val recommendationId = database.reference.child("recommendations").push().key ?: return
 
@@ -160,14 +210,18 @@ class UploadRecommendationFragment : Fragment() {
             imageUrls
 
         )
-
         database.reference.child("recommendations").child(recommendationId).setValue(recommendation)
             .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Recommendation submitted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Recommendation submitted", Toast.LENGTH_SHORT)
+                    .show()
                 findNavController().navigate(R.id.action_uploadRecommendationFragment_to_mainFeedFragment)
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to submit recommendation", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to submit recommendation",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 

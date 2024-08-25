@@ -10,15 +10,18 @@ import com.google.firebase.auth.FirebaseAuth
 import android.widget.Toast
 import com.google.firebase.database.FirebaseDatabase
 import android.content.Intent
+import android.net.Uri
 import com.example.finalproject.MainActivityApp
 import androidx.navigation.fragment.findNavController
 import com.example.finalproject.R
+import android.util.Log
 
 class SignUpFragment : Fragment() {
     private var _binding: FragmentSignUpBinding? = null
     private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
+    private var profileImage: Uri? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,8 +30,7 @@ class SignUpFragment : Fragment() {
         _binding = FragmentSignUpBinding.inflate(inflater, container, false)
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
-
-        binding.buttonGoToLogIn.setOnClickListener {
+        binding.buttonSignUp.setOnClickListener {
             val username = binding.editTextUserName.text.toString()
             val email = binding.editTextEmail.text.toString()
             val password = binding.editTextPassword.text.toString()
@@ -52,7 +54,6 @@ class SignUpFragment : Fragment() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     val userId = user?.uid
-
                     // Save the username to the Realtime Database
                     userId?.let {
                         val userRef = database.reference.child("users").child(it)

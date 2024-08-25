@@ -9,14 +9,18 @@ import android.view.ViewGroup
 import com.example.finalproject.databinding.FragmentProfileBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 import androidx.navigation.fragment.findNavController
 import android.util.Log
+import com.bumptech.glide.Glide
+
 
 class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
+    private lateinit var storage: FirebaseStorage
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,6 +30,7 @@ class ProfileFragment : Fragment() {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
+        storage = FirebaseStorage.getInstance()
 
         // Fetch user data from Firebase and populate the UI
         populateUserProfile()
@@ -38,11 +43,30 @@ class ProfileFragment : Fragment() {
     }
 
     private fun populateUserProfile() {
-        Log.d("ProfileFragment", "onCreateView: check profile data")
+        Log.d("ProfileFragment", "populateUserProfile: check profile data")
         val user = auth.currentUser
         if (user != null) {
-            binding.usernameTextView.text = user.displayName
-            binding.emailTextView.text = user.email
+            binding.usernameTextView.text = user.displayName ?: "No Display Name"
+            binding.emailTextView.text = user.email ?: "No Email"
+
+            // Fetch and load the profile image from Firebase Storage
+            val userId = user.uid
+            val storageRef = storage.reference.child("profile_images/$userId.jpg")
+
+            storageRef.downloadUrl.addOnSuccessListener { uri ->
+                Glide.with(this)
+                    .load(uri)
+                    .placeholder(R.drawable.profile2) // Placeholder image while loading
+                    .into(binding.profileImageView)
+            }.addOnFailureListener {
+                // Handle the error if the image retrieval fails
+                Log.e("ProfileFragment", "Error loading profile image: ${it.message}")
+                binding.profileImageView.setImageResource(R.drawable.profile2) // Default image
+            }
+        } else {
+            binding.usernameTextView.text = "User not logged in"
+            binding.emailTextView.text = "No Email"
+            binding.profileImageView.setImageResource(R.drawable.profile2) // Default image
         }
     }
 
@@ -51,3 +75,4 @@ class ProfileFragment : Fragment() {
         _binding = null
     }
 }
+

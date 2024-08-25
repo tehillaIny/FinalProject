@@ -47,13 +47,13 @@ class MainFeedFragment : Fragment() {
         // Fetch data from Firebase
         fetchRecommendations()
 
-        binding.buttonGoToaddRecommendation.setOnClickListener {
+        /*binding.buttonGoToaddRecommendation.setOnClickListener {
             findNavController().navigate(R.id.action_mainFeedFragment_to_uploadRecommendationFragment)
         }
         binding.buttonGoToProfile.setOnClickListener {
             Log.d("MainFeedFragment", "Button clicked")
             findNavController().navigate(R.id.action_mainFeedFragment_to_profileFragment)
-        }
+        }*/
         return view
     }
     private fun fetchRecommendations() {

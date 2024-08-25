@@ -1,40 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- res/navigation/nav_graph_main.xml -->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/mainFeedFragment">
+    android:id="@+id/nav_graph_main"
+    app:startDestination="@id/nav_feed">
 
     <fragment
-        android:id="@+id/mainFeedFragment"
+        android:id="@+id/nav_feed"
         android:name="com.example.finalproject.fragments.MainFeedFragment"
-        android:label="Main Feed"
-        tools:layout="@layout/fragment_main_feed">
-        <action
-            android:id="@+id/action_mainFeedFragment_to_uploadRecommendationFragment"
-            app:destination="@id/uploadRecommendationFragment" />
-        <action
-            android:id="@+id/action_mainFeedFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
-    </fragment>
+        android:label="Feed"
+        tools:layout="@layout/fragment_main_feed" />
 
     <fragment
-        android:id="@+id/uploadRecommendationFragment"
+        android:id="@+id/nav_upload"
         android:name="com.example.finalproject.fragments.UploadRecommendationFragment"
-        android:label="Upload Recommendation"
-        tools:layout="@layout/fragment_upload_recommendation">
-        <action
-            android:id="@+id/action_uploadRecommendationFragment_to_mainFeedFragment"
-            app:destination="@id/mainFeedFragment" />
-    </fragment>
+        android:label="Upload"
+        tools:layout="@layout/fragment_upload_recommendation" />
 
     <fragment
-        android:id="@+id/profileFragment"
+        android:id="@+id/nav_profile"
         android:name="com.example.finalproject.fragments.ProfileFragment"
         android:label="Profile"
-        tools:layout="@layout/fragment_profile">
-        <action
-            android:id="@+id/action_profileFragment_to_mainFeedFragment"
-            app:destination="@id/mainFeedFragment" />
-    </fragment>
-
+        tools:layout="@layout/fragment_profile" />
 </navigation>

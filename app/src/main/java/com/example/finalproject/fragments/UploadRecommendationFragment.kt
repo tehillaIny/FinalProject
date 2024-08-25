@@ -214,7 +214,7 @@ class UploadRecommendationFragment : Fragment() {
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Recommendation submitted", Toast.LENGTH_SHORT)
                     .show()
-                findNavController().navigate(R.id.action_uploadRecommendationFragment_to_mainFeedFragment)
+                //findNavController().navigate(R.id.action_uploadRecommendationFragment_to_mainFeedFragment)
             }
             .addOnFailureListener {
                 Toast.makeText(

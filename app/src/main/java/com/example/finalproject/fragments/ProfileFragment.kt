@@ -30,9 +30,9 @@ class ProfileFragment : Fragment() {
         // Fetch user data from Firebase and populate the UI
         populateUserProfile()
         // back to mainFeed
-        binding.buttonBack.setOnClickListener {
+        /*binding.buttonBack.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_mainFeedFragment)
-        }
+        }*/
 
         return binding.root
     }

@@ -71,6 +71,11 @@ class SignUpFragment : Fragment() {
     }
 
     private fun signUpUser(username: String, email: String, password: String) {
+        // Show the progress bar
+        binding.signUpProgressBar.visibility = View.VISIBLE
+        binding.uploadProgressTextView.visibility = View.VISIBLE
+        binding.buttonSignUp.isEnabled = false // Disable the sign-up button
+
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
@@ -88,13 +93,21 @@ class SignUpFragment : Fragment() {
                                 saveUserToDatabase(userId, username, profileImageUrl)
                             }
                         }.addOnFailureListener {
+                            // Hide the progress bar if there's an error
+                            binding.signUpProgressBar.visibility = View.GONE
+                            binding.uploadProgressTextView.visibility = View.GONE
+                            binding.buttonSignUp.isEnabled = true // Re-enable the sign-up button
                             Toast.makeText(requireContext(), "Profile image upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
                         }
                     } else {
                         // If no profile image selected, just save the user details without an image
                         saveUserToDatabase(userId!!, username, null)
                     }
+
                 } else {
+                    // Hide the progress bar if there's an error
+                    binding.signUpProgressBar.visibility = View.GONE
+                    binding.buttonSignUp.isEnabled = true // Re-enable the sign-up button
                     Toast.makeText(requireContext(), "Sign-up failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -106,6 +119,10 @@ class SignUpFragment : Fragment() {
         profileImageUrl?.let {
             userRef.child("profileImageUrl").setValue(it)
         }
+
+        // Hide the progress bar after the data is saved
+        binding.signUpProgressBar.visibility = View.GONE
+        binding.buttonSignUp.isEnabled = true // Re-enable the sign-up button
 
         Toast.makeText(requireContext(), "Sign-up successful!", Toast.LENGTH_SHORT).show()
         val intent = Intent(requireContext(), MainActivityApp::class.java)

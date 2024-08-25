@@ -1,5 +1,6 @@
 package com.example.finalproject.fragments
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -15,12 +16,14 @@ import com.example.finalproject.MainActivityApp
 import androidx.navigation.fragment.findNavController
 import com.example.finalproject.R
 import android.util.Log
+import com.google.firebase.storage.FirebaseStorage
 
 class SignUpFragment : Fragment() {
     private var _binding: FragmentSignUpBinding? = null
     private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
+    private lateinit var storage: FirebaseStorage
     private var profileImage: Uri? = null
 
     override fun onCreateView(
@@ -30,6 +33,12 @@ class SignUpFragment : Fragment() {
         _binding = FragmentSignUpBinding.inflate(inflater, container, false)
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
+        storage = FirebaseStorage.getInstance()
+
+        binding.uploadProfilePhotoButton.setOnClickListener {
+            pickImageFromGallery()
+        }
+
         binding.buttonSignUp.setOnClickListener {
             val username = binding.editTextUserName.text.toString()
             val email = binding.editTextEmail.text.toString()
@@ -47,6 +56,19 @@ class SignUpFragment : Fragment() {
         }
         return binding.root
     }
+    private fun pickImageFromGallery() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent, 1000)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1000 && resultCode == Activity.RESULT_OK) {
+            profileImage = data?.data
+            binding.uploadProfilePhotoButton.text = "Image Selected"
+        }
+    }
 
     private fun signUpUser(username: String, email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
@@ -54,37 +76,46 @@ class SignUpFragment : Fragment() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     val userId = user?.uid
-                    // Save the username to the Realtime Database
-                    userId?.let {
-                        val userRef = database.reference.child("users").child(it)
-                        userRef.child("username").setValue(username)
-                    }
-                    Toast.makeText(requireContext(), "Sign-up successful!", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(requireContext(), MainActivityApp::class.java)
-                    startActivity(intent)
-                    requireActivity().finish()
 
+                    // If profileImage is selected, upload it to Firebase Storage
+                    if (profileImage != null && userId != null) {
+                        val storageRef = FirebaseStorage.getInstance().reference.child("profile_images/$userId.jpg")
+                        val uploadTask = storageRef.putFile(profileImage!!)
+
+                        uploadTask.addOnSuccessListener {
+                            storageRef.downloadUrl.addOnSuccessListener { uri ->
+                                val profileImageUrl = uri.toString()
+                                saveUserToDatabase(userId, username, profileImageUrl)
+                            }
+                        }.addOnFailureListener {
+                            Toast.makeText(requireContext(), "Profile image upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        // If no profile image selected, just save the user details without an image
+                        saveUserToDatabase(userId!!, username, null)
+                    }
                 } else {
                     Toast.makeText(requireContext(), "Sign-up failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
     }
 
+    private fun saveUserToDatabase(userId: String, username: String, profileImageUrl: String?) {
+        val userRef = database.reference.child("users").child(userId)
+        userRef.child("username").setValue(username)
+        profileImageUrl?.let {
+            userRef.child("profileImageUrl").setValue(it)
+        }
+
+        Toast.makeText(requireContext(), "Sign-up successful!", Toast.LENGTH_SHORT).show()
+        val intent = Intent(requireContext(), MainActivityApp::class.java)
+        startActivity(intent)
+        requireActivity().finish()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    fun signUp(email: String, password: String) {
-        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val user = FirebaseAuth.getInstance().currentUser
-                    // User is signed up successfully
-                } else {
-                    // Handle sign up failure
-                }
-            }
     }
 
 }

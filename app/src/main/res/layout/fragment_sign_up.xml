@@ -28,6 +28,13 @@
         android:padding="16dp"/>
 
     <Button
+        android:id="@+id/uploadProfilePhotoButton"
+        android:layout_width="185dp"
+        android:layout_height="wrap_content"
+        android:text="Upload Profile Photo"
+        />
+
+    <Button
         android:id="@+id/buttonSignUp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

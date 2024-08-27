@@ -79,19 +79,27 @@ class MainActivityApp : AppCompatActivity() {
             storageRef.downloadUrl.addOnSuccessListener { uri ->
                 Glide.with(this)
                     .load(uri)
-                    .placeholder(R.drawable.profile2) // Placeholder image while loading
+                    .placeholder(R.drawable.profile1) // Placeholder image while loading
                     .circleCrop() // Ensures the image is cropped into a circle
                     .into(binding.profileImageView)
             }.addOnFailureListener {
-                // Handle the error if the image retrieval fails
-                binding.profileImageView.setImageResource(R.drawable.profile2) // Default image
+                // If there's an error (e.g., no profile image exists), load the default image with Glide
+                Glide.with(this)
+                    .load(R.drawable.profile1)
+                    .circleCrop()
+                    .into(binding.profileImageView)
             }
         } else {
-            binding.profileImageView.setImageResource(R.drawable.profile2) // Default image
+            // If the user is not logged in or user data is unavailable, load the default image with Glide
+            Glide.with(this)
+                .load(R.drawable.profile1)
+                .circleCrop()
+                .into(binding.profileImageView)
         }
     }
 
-        private fun logout() {
+
+    private fun logout() {
             auth.signOut()
             // Redirect to login screen or handle logout logic
         }

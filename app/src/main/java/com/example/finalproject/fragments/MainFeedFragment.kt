@@ -27,7 +27,6 @@ class MainFeedFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d("MainFeedFragment", "onCreateView: check")
         _binding = FragmentMainFeedBinding.inflate(inflater, container, false)
         val view = binding.root
 
@@ -49,8 +48,10 @@ class MainFeedFragment : Fragment() {
                     val recommendation = recommendationSnapshot.getValue(Recommendation::class.java)
                     recommendation?.let { recommendationsList.add(it) }
                 }
-                // Update RecyclerView with the fetched data
-                adapter = RecommendationAdapter(recommendationsList)
+                adapter = RecommendationAdapter(recommendationsList) { recommendation ->
+                    val action = MainFeedFragmentDirections.actionMainFeedFragmentToPostPageFragment(recommendation)
+                    findNavController().navigate(action)
+                }
                 recyclerView.adapter = adapter
             }
             override fun onCancelled(error: DatabaseError) {

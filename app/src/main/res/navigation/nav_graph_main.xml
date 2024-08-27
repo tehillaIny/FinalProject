@@ -9,7 +9,11 @@
         android:id="@+id/nav_feed"
         android:name="com.example.finalproject.fragments.MainFeedFragment"
         android:label="Feed"
-        tools:layout="@layout/fragment_main_feed" />
+        tools:layout="@layout/fragment_main_feed">
+        <action
+            android:id="@+id/action_mainFeedFragment_to_postPageFragment"
+            app:destination="@id/postPageFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_upload"
@@ -22,4 +26,15 @@
         android:name="com.example.finalproject.fragments.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/postPageFragment"
+        android:name="com.example.finalproject.fragments.PostPageFragment"
+        android:label="Post Page"
+        tools:layout="@layout/fragment_post_page">
+        <argument
+            android:name="recommendation"
+            app:argType="com.example.finalproject.models.Recommendation" />
+    </fragment>
+
 </navigation>

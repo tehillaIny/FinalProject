@@ -43,36 +43,47 @@ class ProfileFragment : Fragment() {
     }
 
     private fun populateUserProfile() {
-        Log.d("ProfileFragment", "populateUserProfile: check profile data")
         val user = auth.currentUser
         if (user != null) {
-            binding.usernameTextView.text = user.displayName ?: "No Display Name"
-            binding.emailTextView.text = user.email ?: "No Email"
-
-            // Fetch and load the profile image from Firebase Storage
             val userId = user.uid
-            val storageRef = storage.reference.child("profile_images/$userId.jpg")
+            val userRef = database.reference.child("users").child(userId)
 
-            storageRef.downloadUrl.addOnSuccessListener { uri ->
-                Glide.with(this)
-                    .load(uri)
-                    .placeholder(R.drawable.profile2) // Placeholder image while loading
-                    .into(binding.profileImageView)
-            }.addOnFailureListener {
-                // Handle the error if the image retrieval fails
-                Log.e("ProfileFragment", "Error loading profile image: ${it.message}")
-                binding.profileImageView.setImageResource(R.drawable.profile2) // Default image
+            // Fetch user data from Firebase Realtime Database
+            userRef.get().addOnSuccessListener { dataSnapshot ->
+                val displayName = dataSnapshot.child("username").getValue(String::class.java)
+                val email = user.email
+
+                Log.d("ProfileFragment", "User display name: $displayName")
+                Log.d("ProfileFragment", "User email: $email")
+
+                binding.usernameTextView.text = displayName ?: "No Display Name"
+                binding.emailTextView.text = email ?: "No Email"
+
+                // Fetch and load the profile image from Firebase Storage
+                val userId = user.uid
+                val storageRef = storage.reference.child("profile_images/$userId.jpg")
+
+                storageRef.downloadUrl.addOnSuccessListener { uri ->
+                    Glide.with(this)
+                        .load(uri)
+                        .placeholder(R.drawable.profile2) // Placeholder image while loading
+                        .into(binding.profileImageView)
+                }.addOnFailureListener {
+                    // Handle the error if the image retrieval fails
+                    Log.e("ProfileFragment", "Error loading profile image: ${it.message}")
+                    binding.profileImageView.setImageResource(R.drawable.profile2) // Default image
+                }
             }
+
         } else {
             binding.usernameTextView.text = "User not logged in"
             binding.emailTextView.text = "No Email"
             binding.profileImageView.setImageResource(R.drawable.profile2) // Default image
         }
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-}
+    }}
+
 

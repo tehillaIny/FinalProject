@@ -27,33 +27,18 @@ class MainFeedFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d("MainFeedFragment", "onCreateView: check")
         _binding = FragmentMainFeedBinding.inflate(inflater, container, false)
         val view = binding.root
 
         recyclerView = view.findViewById(R.id.recyclerViewRecommendations)
         recyclerView.layoutManager = LinearLayoutManager(context)
-
-        /*val recommendations = listOf(
-            // Sample data
-            Recommendation("Restaurant A", "Description A", "https://example.com/image1.jpg"),
-            Recommendation("Restaurant B", "Description B", "https://example.com/image2.jpg")
-        )
-        adapter = RecommendationAdapter(recommendations)
-        recyclerView.adapter = adapter*/
-
         // Initialize Firebase Database
         database = FirebaseDatabase.getInstance().getReference("recommendations")
 
         // Fetch data from Firebase
         fetchRecommendations()
 
-        /*binding.buttonGoToaddRecommendation.setOnClickListener {
-            findNavController().navigate(R.id.action_mainFeedFragment_to_uploadRecommendationFragment)
-        }
-        binding.buttonGoToProfile.setOnClickListener {
-            Log.d("MainFeedFragment", "Button clicked")
-            findNavController().navigate(R.id.action_mainFeedFragment_to_profileFragment)
-        }*/
         return view
     }
     private fun fetchRecommendations() {

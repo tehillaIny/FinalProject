@@ -12,16 +12,4 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"/>
 
-    <Button
-        android:id="@+id/buttonGoToaddRecommendation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Navigate to Add Recommendation" />
-
-    <Button
-        android:id="@+id/buttonGoToProfile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Go to Profile" />
-
 </LinearLayout>

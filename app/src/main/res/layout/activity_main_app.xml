@@ -9,31 +9,31 @@
     tools:context=".MainActivityApp">
 
     <!-- Header Layout -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:padding="8dp"
         android:background="?attr/colorPrimary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:gravity="center_vertical">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <!-- Profile Image View -->
         <ImageView
             android:id="@+id/profileImageView"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
             android:contentDescription="@string/profile_image"
             android:src="@drawable/profile2"
             android:background="@drawable/circle_background"
             android:clickable="true"
             android:focusable="true"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <!-- Logo Image View -->
         <ImageView
@@ -42,10 +42,13 @@
             android:layout_height="40dp"
             android:contentDescription="@string/logo_image"
             android:src="@drawable/logo"
-            android:layout_gravity="center"
             android:scaleType="fitCenter"
-            android:layout_weight="1" />
-    </LinearLayout>
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Fragment Container for NavHostFragment -->
     <androidx.fragment.app.FragmentContainerView

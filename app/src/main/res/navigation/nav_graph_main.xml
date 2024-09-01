@@ -30,11 +30,10 @@
     <fragment
         android:id="@+id/postPageFragment"
         android:name="com.example.finalproject.fragments.PostPageFragment"
-        android:label="Post Page"
-        tools:layout="@layout/fragment_post_page">
+        android:label="Post Page">
         <argument
-            android:name="recommendation"
-            app:argType="com.example.finalproject.models.Recommendation" />
+            android:name="recommendationId"
+            app:argType="string" />
     </fragment>
 
 </navigation>

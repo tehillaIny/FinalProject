@@ -1,4 +1,5 @@
 package com.example.finalproject.adapter
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +11,9 @@ import com.bumptech.glide.Glide
 import com.example.finalproject.R
 import com.example.finalproject.models.Recommendation
 
-
 class RecommendationAdapter(
-    private val recommendations: List<Recommendation>,
-    private val onItemClick: (Recommendation) -> Unit,
+    private val recommendations: List<Pair<String, Recommendation>>, // List of Pair<recommendationId, Recommendation>
+    private val onItemClick: (String) -> Unit,       // Pass recommendationId and Recommendation
     private val onLikeClick: (Recommendation) -> Unit
 ) : RecyclerView.Adapter<RecommendationAdapter.RecommendationViewHolder>() {
 
@@ -24,8 +24,8 @@ class RecommendationAdapter(
     }
 
     override fun onBindViewHolder(holder: RecommendationViewHolder, position: Int) {
-        val recommendation = recommendations[position]
-        holder.bind(recommendation, onItemClick, onLikeClick)
+        val (recommendationId, recommendation) = recommendations[position]
+        holder.bind(recommendationId, recommendation, onItemClick, onLikeClick)
     }
 
     override fun getItemCount() = recommendations.size
@@ -37,8 +37,9 @@ class RecommendationAdapter(
         private val likeButton: ImageButton = itemView.findViewById(R.id.likeButton)
 
         fun bind(
+            recommendationId: String,                             // Accept recommendationId
             recommendation: Recommendation,
-            onItemClick: (Recommendation) -> Unit,
+            onItemClick: (String) -> Unit,        // Pass recommendationId and Recommendation
             onLikeClick: (Recommendation) -> Unit
         ) {
             title.text = recommendation.restaurantName
@@ -46,7 +47,7 @@ class RecommendationAdapter(
             Glide.with(itemView.context).load(recommendation.mainImageUrl).into(image)
 
             itemView.setOnClickListener {
-                onItemClick(recommendation)
+                onItemClick(recommendationId)      // Pass recommendationId when clicked
             }
 
             likeButton.setOnClickListener {
@@ -54,5 +55,4 @@ class RecommendationAdapter(
             }
         }
     }
-
 }

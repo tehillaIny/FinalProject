@@ -40,33 +40,42 @@ class MainFeedFragment : Fragment() {
 
         return view
     }
+
     private fun fetchRecommendations() {
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val recommendationsList = mutableListOf<Recommendation>()
+                val recommendationsList = mutableListOf<Pair<String, Recommendation>>()
                 for (recommendationSnapshot in snapshot.children) {
+                    val recommendationId = recommendationSnapshot.key ?: continue
                     val recommendation = recommendationSnapshot.getValue(Recommendation::class.java)
-                    recommendation?.let { recommendationsList.add(it) }
+                    recommendation?.let { recommendationsList.add(Pair(recommendationId, it)) }
                 }
-                adapter = RecommendationAdapter(recommendationsList) { recommendation ->
-                    val action = MainFeedFragmentDirections.actionMainFeedFragmentToPostPageFragment(recommendation)
-                    findNavController().navigate(action)
-                }
+                adapter = RecommendationAdapter(
+                    recommendationsList,
+                    onItemClick = { recommendationId ->
+                        val action = MainFeedFragmentDirections.actionMainFeedFragmentToPostPageFragment(recommendationId)
+                        findNavController().navigate(action)
+                    },
+                    onLikeClick = { recommendation ->
+                        // add Handle like button click if needed
+                    }
+                )
                 recyclerView.adapter = adapter
+
             }
+
+
+
             override fun onCancelled(error: DatabaseError) {
                 // Handle potential errors
                 Log.e("MainFeedFragment", "Failed to load recommendations.", error.toException())
             }
 
         })
-
     }
+
     override fun onDestroyView() {
-
         super.onDestroyView()
-
         _binding = null
-
     }
 }

@@ -13,6 +13,9 @@ import com.google.firebase.storage.FirebaseStorage
 import androidx.navigation.fragment.findNavController
 import android.util.Log
 import com.bumptech.glide.Glide
+import android.content.Intent
+import android.net.Uri
+import androidx.appcompat.app.AppCompatActivity
 
 
 class ProfileFragment : Fragment() {
@@ -34,11 +37,18 @@ class ProfileFragment : Fragment() {
 
         // Fetch user data from Firebase and populate the UI
         populateUserProfile()
-        // back to mainFeed
-        /*binding.buttonBack.setOnClickListener {
-            findNavController().navigate(R.id.action_profileFragment_to_mainFeedFragment)
-        }*/
 
+        binding.editProfileButton.setOnClickListener {
+            toggleEditMode(true)
+        }
+        // save changes
+        binding.saveButton.setOnClickListener {
+            saveUserProfile()
+        }
+
+        binding.changeProfileImageTextView.setOnClickListener {
+            selectImageFromGallery()
+        }
         return binding.root
     }
 
@@ -51,18 +61,12 @@ class ProfileFragment : Fragment() {
             // Fetch user data from Firebase Realtime Database
             userRef.get().addOnSuccessListener { dataSnapshot ->
                 val displayName = dataSnapshot.child("username").getValue(String::class.java)
-                val email = user.email
-
-                Log.d("ProfileFragment", "User display name: $displayName")
-                Log.d("ProfileFragment", "User email: $email")
 
                 binding.usernameTextView.text = displayName ?: "No Display Name"
-                binding.emailTextView.text = email ?: "No Email"
+                binding.usernameEditText.setText(displayName ?: "No Display Name")
 
-                // Fetch and load the profile image from Firebase Storage
-                val userId = user.uid
+                // Fetch and display the user's profile image from Firebase Storage
                 val storageRef = storage.reference.child("profile_images/$userId.jpg")
-
                 storageRef.downloadUrl.addOnSuccessListener { uri ->
                     Glide.with(this)
                         .load(uri)
@@ -77,13 +81,91 @@ class ProfileFragment : Fragment() {
 
         } else {
             binding.usernameTextView.text = "User not logged in"
-            binding.emailTextView.text = "No Email"
-            binding.profileImageView.setImageResource(R.drawable.profile2) // Default image
+            binding.profileImageView.setImageResource(R.drawable.profile2) // default image
+        }
+    }
+    // Edit profile //
+    private fun toggleEditMode(isEditing: Boolean) {
+        binding.usernameTextView.visibility = if (isEditing) View.GONE else View.VISIBLE
+        binding.emailTextView.visibility = if (isEditing) View.GONE else View.VISIBLE
+        binding.editProfileButton.visibility = if (isEditing) View.GONE else View.VISIBLE
+
+        binding.editProfileLayout.visibility = if (isEditing) View.VISIBLE else View.GONE
+    }
+    // save changes
+    private fun saveUserProfile() {
+        val user = auth.currentUser
+        if (user != null) {
+            val userId = user.uid
+            val userRef = database.reference.child("users").child(userId)
+            val newUsername = binding.usernameEditText.text.toString()
+            val newPassword = binding.passwordEditText.text.toString()
+
+            // Update username in Firebase Realtime Database
+            userRef.child("username").setValue(newUsername)
+
+            // Update password in Firebase Authentication
+            if (newPassword.isNotEmpty()) {
+                user.updatePassword(newPassword).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("ProfileFragment", "User password updated successfully.")
+                    } else {
+                        Log.e("ProfileFragment", "Failed to update password: ${task.exception?.message}")
+                    }
+                }
+            }
+            // Optionally show a message to the user
+            Log.d("ProfileFragment", "User profile updated successfully.")
+
+            // Switch back to view mode
+            toggleEditMode(false)
+
+            // Update the profile view with new data
+            binding.usernameTextView.text = newUsername
+        }
+    }
+    private fun selectImageFromGallery() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent, REQUEST_CODE_IMAGE_PICK)
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_IMAGE_PICK && resultCode == AppCompatActivity.RESULT_OK) {
+            val imageUri = data?.data
+            if (imageUri != null) {
+                uploadProfileImageToFirebase(imageUri)
+            }
+        }
+    }
+    private fun uploadProfileImageToFirebase(imageUri: Uri) {
+        val user = auth.currentUser
+        if (user != null) {
+            val userId = user.uid
+            val storageRef = storage.reference.child("profile_images/$userId.jpg")
+
+            storageRef.putFile(imageUri).addOnSuccessListener {
+                storageRef.downloadUrl.addOnSuccessListener { uri ->
+                    Glide.with(this)
+                        .load(uri)
+                        .placeholder(R.drawable.profile2)
+                        .into(binding.profileImageView)
+                    Log.d("ProfileFragment", "Profile image uploaded successfully.")
+                }
+            }.addOnFailureListener {
+                Log.e("ProfileFragment", "Failed to upload profile image: ${it.message}")
+            }
         }
     }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }}
+    }
+    companion object {
+        private const val REQUEST_CODE_IMAGE_PICK = 1001
+    }
+}
+
+
 
 

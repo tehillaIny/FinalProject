@@ -65,6 +65,14 @@
             android:layout_marginTop="16dp" />
 
         <EditText
+            android:id="@+id/currentPasswordEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Current Password"
+            android:inputType="textPassword"
+            android:layout_marginTop="8dp"/>
+
+        <EditText
             android:id="@+id/passwordEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -72,6 +80,14 @@
             android:inputType="textPassword"
             android:textSize="16sp"
             android:layout_marginTop="8dp" />
+
+        <EditText
+            android:id="@+id/confirmPasswordEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Confirm Password"
+            android:inputType="textPassword"
+            android:layout_marginTop="8dp"/>
 
         <Button
             android:id="@+id/saveButton"

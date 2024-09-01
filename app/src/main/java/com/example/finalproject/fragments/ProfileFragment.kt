@@ -65,6 +65,10 @@ class ProfileFragment : Fragment() {
                 binding.usernameTextView.text = displayName ?: "No Display Name"
                 binding.usernameEditText.setText(displayName ?: "No Display Name")
 
+                // Display email
+                val email = user.email
+                binding.emailTextView.text = email ?: "No Email"
+
                 // Fetch and display the user's profile image from Firebase Storage
                 val storageRef = storage.reference.child("profile_images/$userId.jpg")
                 storageRef.downloadUrl.addOnSuccessListener { uri ->
@@ -100,17 +104,35 @@ class ProfileFragment : Fragment() {
             val userRef = database.reference.child("users").child(userId)
             val newUsername = binding.usernameEditText.text.toString()
             val newPassword = binding.passwordEditText.text.toString()
+            val confirmPassword = binding.confirmPasswordEditText.text.toString()
+            val currentPassword = binding.currentPasswordEditText.text.toString()
 
+            // Check if passwords match
+            if (newPassword != confirmPassword) {
+                // Show error message to user if passwords do not match
+                Log.e("ProfileFragment", "Passwords do not match.")
+                binding.confirmPasswordEditText.error = "Passwords do not match"
+                return
+            }
             // Update username in Firebase Realtime Database
             userRef.child("username").setValue(newUsername)
 
             // Update password in Firebase Authentication
             if (newPassword.isNotEmpty()) {
-                user.updatePassword(newPassword).addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d("ProfileFragment", "User password updated successfully.")
+                // Re-authenticate the user before updating the password
+                auth.signInWithEmailAndPassword(user.email!!, currentPassword).addOnCompleteListener { authTask ->
+                    if (authTask.isSuccessful) {
+                        user.updatePassword(newPassword).addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                Log.d("ProfileFragment", "User password updated successfully.")
+                            } else {
+                                Log.e("ProfileFragment", "Failed to update password: ${task.exception?.message}")
+                                binding.passwordEditText.error = "Failed to update password: ${task.exception?.message}"
+                            }
+                        }
                     } else {
-                        Log.e("ProfileFragment", "Failed to update password: ${task.exception?.message}")
+                        Log.e("ProfileFragment", "Re-authentication failed: ${authTask.exception?.message}")
+                        binding.currentPasswordEditText.error = "Re-authentication failed: ${authTask.exception?.message}"
                     }
                 }
             }

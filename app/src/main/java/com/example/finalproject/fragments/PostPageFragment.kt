@@ -20,17 +20,18 @@ import androidx.navigation.fragment.navArgs
 import com.example.finalproject.adapters.CommentsAdapter
 import com.google.firebase.auth.FirebaseAuth
 
-
-
 class PostPageFragment : Fragment() {
 
     private var _binding: FragmentPostPageBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var database: DatabaseReference
+    //private lateinit var database: DatabaseReference
+    private lateinit var database: FirebaseDatabase
+
     private val args: PostPageFragmentArgs by navArgs()
     private lateinit var recommendationId: String
     private lateinit var commentsRef: DatabaseReference
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,9 +41,11 @@ class PostPageFragment : Fragment() {
         // Get the recommendation ID from the arguments
         val view = binding.root
         // Initialize Firebase Database reference
-        database = FirebaseDatabase.getInstance().getReference("recommendations")
-        commentsRef = FirebaseDatabase.getInstance().getReference("comments") // Adjust as needed
+        //database = FirebaseDatabase.getInstance().getReference("recommendations")
+        database = FirebaseDatabase.getInstance()
+        commentsRef = FirebaseDatabase.getInstance().getReference("comments")
         recommendationId = args.recommendationId
+        auth = FirebaseAuth.getInstance()
 
         // Fetch and display the recommendation data
         fetchRecommendation()
@@ -53,7 +56,7 @@ class PostPageFragment : Fragment() {
     }
 
     private fun fetchRecommendation() {
-        database.child(recommendationId).addValueEventListener(object : ValueEventListener {
+        database.getReference("recommendations").child(recommendationId).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val recommendation = snapshot.getValue(Recommendation::class.java)
                 recommendation?.let {
@@ -106,33 +109,6 @@ class PostPageFragment : Fragment() {
     }
 
 
-    /*private fun fetchUserNamesForComments(comments: List<Comment>) {
-        val userNameMap = mutableMapOf<String, String>()
-        val userIds = comments.mapNotNull { it.userId }.distinct() // Ensure userId is non-null
-
-        userIds.forEach { userId ->
-            fetchUserName(userId) { userName ->
-                if (userId != null) { // Ensure userId is non-null
-                    userNameMap[userId] = userName ?: "Unknown"
-                    if (userNameMap.size == userIds.size) {
-                        updateCommentsUI(comments, userNameMap)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun fetchUserName(userId: String, callback: (String) -> Unit) {
-        val userRef = FirebaseDatabase.getInstance().getReference("users").child(userId)
-        userRef.get().addOnSuccessListener { snapshot ->
-            val userName = snapshot.child("name").getValue(String::class.java) ?: "Unknown"
-            callback(userName)
-        }.addOnFailureListener {
-            callback("Unknown")
-        }
-    }*/
-
-
     private fun updateCommentsUI(comments: List<Comment>) {
         val adapter = CommentsAdapter(comments)
         binding.recyclerViewComments.layoutManager = LinearLayoutManager(context)
@@ -142,18 +118,30 @@ class PostPageFragment : Fragment() {
     private fun addComment() {
         val commentText = binding.editTextComment.text.toString()
         if (commentText.isNotBlank()) {
-            val userId = "userId" // Replace with actual user ID
-            val comment = Comment(userId, commentText, System.currentTimeMillis())
-            val newCommentRef = commentsRef.child(recommendationId).push()
-            newCommentRef.setValue(comment)
-                .addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        binding.editTextComment.text.clear()
-                    }
+            val user = auth.currentUser
+            if (user != null) {
+                val userId = user.uid
+                val userRef = database.reference.child("users").child(userId)
+                userRef.get().addOnSuccessListener { dataSnapshot ->
+                    val userName = dataSnapshot.child("username").getValue(String::class.java)
+
+                    val comment = Comment(
+                        userId,
+                        userName,
+                        commentText,
+                        System.currentTimeMillis()
+                    )
+                    val newCommentRef = commentsRef.child(recommendationId).push()
+                    newCommentRef.setValue(comment)
+                        .addOnCompleteListener {
+                            if (it.isSuccessful) {
+                                binding.editTextComment.text.clear()
+                            }
+                        }
                 }
+            }
         }
     }
-
 
 
     override fun onDestroyView() {

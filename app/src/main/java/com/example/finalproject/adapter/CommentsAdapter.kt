@@ -5,6 +5,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.finalproject.databinding.ItemCommentBinding
 import com.example.finalproject.models.Comment
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.Date
 
 class CommentsAdapter(private val comments: List<Comment>) : RecyclerView.Adapter<CommentsAdapter.CommentViewHolder>() {
 
@@ -24,8 +27,11 @@ class CommentsAdapter(private val comments: List<Comment>) : RecyclerView.Adapte
 
     inner class CommentViewHolder(private val binding: ItemCommentBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(comment: Comment) {
-            binding.textViewUserName.text = comment.userId
+            binding.textViewUserName.text = comment.userName
             binding.textViewComment.text = comment.text
+            val sdf = SimpleDateFormat("dd/MM/yy, HH:mm", Locale.getDefault())
+            val formattedDate = sdf.format(Date(comment.timestamp))
+            binding.textViewDate.text = formattedDate
         }
     }
 }

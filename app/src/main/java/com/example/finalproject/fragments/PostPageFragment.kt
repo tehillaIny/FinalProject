@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import com.example.finalproject.databinding.FragmentPostPageBinding
 import com.example.finalproject.models.Recommendation
 import com.example.finalproject.models.Comment
@@ -18,7 +17,10 @@ import com.google.firebase.database.DatabaseError
 import com.bumptech.glide.Glide
 import androidx.navigation.fragment.navArgs
 import com.example.finalproject.adapters.CommentsAdapter
+import com.example.finalproject.adapter.GalleryAdapter
 import com.google.firebase.auth.FirebaseAuth
+import androidx.recyclerview.widget.GridLayoutManager
+import android.util.Log
 
 class PostPageFragment : Fragment() {
 
@@ -82,13 +84,13 @@ class PostPageFragment : Fragment() {
 
         binding.textViewDescription.text = recommendation.description
 
-        recommendation.imageUrls.forEach { imageUrl ->
-            val imageView = ImageView(context)
-            Glide.with(this@PostPageFragment)
-                .load(imageUrl)
-                .into(imageView)
-            binding.galleryLayout.addView(imageView)
-        }
+        // Initialize the adapter and set it to the RecyclerView
+//        val galleryAdapter = GalleryAdapter(recommendation.imageUrls)
+
+        val galleryAdapter = GalleryAdapter(recommendation.imageUrls, requireContext())
+        val layoutManager = GridLayoutManager(context, 3)
+        binding.galleryRecyclerView.layoutManager = layoutManager
+        binding.galleryRecyclerView.adapter = galleryAdapter
     }
 
     private fun fetchComments() {

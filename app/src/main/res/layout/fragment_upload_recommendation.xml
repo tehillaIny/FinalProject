@@ -5,6 +5,15 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <TextView
+        android:id="@+id/uploadTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add new recommendation"
+        android:textSize="24sp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="35dp"/>
+
     <EditText
         android:id="@+id/restaurantNameEditText"
         android:layout_width="match_parent"
@@ -36,19 +45,21 @@
             android:layout_width="185dp"
             android:layout_height="wrap_content"
             android:text="Upload Post Photo"
-            />
+            android:layout_gravity="center"/>
 
         <Button
             android:id="@+id/uploadMorePhotosButton"
             android:layout_width="185dp"
             android:layout_height="wrap_content"
-            android:text="Upload More Photos" />
+            android:text="Upload More Photos"
+            android:layout_gravity="center"/>
 
     <Button
         android:id="@+id/submitRecommendationButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Submit Recommendation"/>
+        android:text="Submit Recommendation"
+        android:layout_gravity="center"/>
 
     <ProgressBar
         android:id="@+id/uploadProgressBar"
@@ -61,6 +72,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Uploading..."
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_gravity="center"/>
 
 </LinearLayout>

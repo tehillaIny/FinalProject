@@ -32,32 +32,36 @@
         android:layout_width="185dp"
         android:layout_height="wrap_content"
         android:text="Upload Profile Photo"
-        />
+        android:layout_gravity="center"/>
 
     <Button
         android:id="@+id/buttonSignUp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Sign Up"
-        android:padding="16dp"/>
+        android:padding="16dp"
+        android:layout_gravity="center"/>
 
     <Button
         android:id="@+id/buttonGoToLogIn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Already have an account? Go to Log In" />
+        android:text="Already have an account? Go to Log In"
+        android:layout_gravity="center"/>
 
     <ProgressBar
         android:id="@+id/sign_up_progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_gravity="center"/>
     <TextView
         android:id="@+id/uploadProgressTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sign-up, please wait..."
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_gravity="center"/>
 
 </LinearLayout>

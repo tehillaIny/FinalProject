@@ -76,8 +76,8 @@
             private val image: ImageView = itemView.findViewById(R.id.imageView)
             private val likeButton: ImageButton? = if (!isProfileView) itemView.findViewById(R.id.likeButton) else null
             private val likeCount: TextView? = if (!isProfileView) itemView.findViewById(R.id.likeCountTextView) else null
-            private val profileImage: ImageView = itemView.findViewById(R.id.profileImageView)
-            private val username: TextView = itemView.findViewById(R.id.usernameTextView)
+            private val profileImage: ImageView? = if(!isProfileView) itemView.findViewById(R.id.profileImageView) else null
+            private val username: TextView? = if(!isProfileView) itemView.findViewById(R.id.usernameTextView) else null
 
             fun bind(
                 recommendationId: String,
@@ -89,11 +89,7 @@
                 usersDatabase: DatabaseReference,
                 storage: FirebaseStorage
             ) {
-                /*if (isProfileView) {
-                    title?.text = recommendation.restaurantName
-                } else {
-                    title?.text = recommendation.restaurantName
-                }*/
+
                 title?.text = recommendation.restaurantName
                 Glide.with(itemView.context).load(recommendation.mainImageUrl).into(image)
 
@@ -129,7 +125,7 @@
                                 .load(uri.toString())
                                 .placeholder(R.drawable.profile2)
                                 .circleCrop()
-                                .into(profileImage)
+                                .into(profileImage ?: return@addOnSuccessListener)
                         }.addOnFailureListener {
                             profileImage?.setImageResource(R.drawable.profile2)
                         }

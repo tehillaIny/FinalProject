@@ -18,8 +18,8 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.database.FirebaseDatabase
 import android.content.Intent
 import com.bumptech.glide.Glide
-import androidx.navigation.NavOptions
 import androidx.navigation.navOptions
+import androidx.navigation.NavOptions
 
 
 class MainActivityApp : AppCompatActivity() {
@@ -50,6 +50,27 @@ class MainActivityApp : AppCompatActivity() {
             // Set up BottomNavigationView with NavController
             val bottomNavigationView = binding.bottomNavigation
             NavigationUI.setupWithNavController(bottomNavigationView, navController)
+
+            bottomNavigationView.setOnItemSelectedListener { item ->
+                when (item.itemId) {
+                    R.id.nav_feed -> {
+                        navController.navigate(R.id.nav_feed, null, NavOptions.Builder()
+                            .setPopUpTo(R.id.nav_feed, true)
+                            .build()
+                        )
+                        true
+                    }
+                    R.id.nav_upload -> {
+                        navController.navigate(R.id.nav_upload)
+                        true
+                    }
+                    R.id.nav_profile -> {
+                        navController.navigate(R.id.nav_profile)
+                        true
+                    }
+                    else -> false
+                }
+            }
         }
         // Observe navigation result for profile image update
         navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("profileImageUpdated")?.observe(

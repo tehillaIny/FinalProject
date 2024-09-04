@@ -43,7 +43,6 @@
             return RecommendationViewHolder(view, isProfileView)
         }
 
-
         override fun onBindViewHolder(holder: RecommendationViewHolder, position: Int) {
             val (recommendationId, recommendation) = recommendations[position]
             holder.bind(recommendationId, recommendation, onItemClick, onLikeClick, currentUserId, position, usersDatabase, storage)
@@ -111,29 +110,37 @@
                 likeCount?.let { this.likeCount?.text = it.toString() }
             }
 
-            fun fetchUserDetails(usersDatabase: DatabaseReference,
-                                 storage: FirebaseStorage, recommendation: Recommendation ){
+            fun fetchUserDetails(
+                usersDatabase: DatabaseReference,
+                storage: FirebaseStorage,
+                recommendation: Recommendation
+            ) {
                 usersDatabase.child(recommendation.userId).addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val userName = snapshot.child("username").getValue(String::class.java) ?: "Unknown"
                         val userId = recommendation.userId
                         val profilePicRef = storage.reference.child("profile_images/$userId.jpg")
+                        Log.d("RecommendationAdapter", "Fetching image from path: profile_images/$userId.jpg")
 
                         username?.text = userName
+
                         profilePicRef.downloadUrl.addOnSuccessListener { uri: Uri ->
                             Glide.with(itemView.context)
                                 .load(uri.toString())
-                                .placeholder(R.drawable.profile2)
+                                .placeholder(R.drawable.profile2) // Placeholder while loading
                                 .circleCrop()
                                 .into(profileImage ?: return@addOnSuccessListener)
-                        }.addOnFailureListener {
+                        }.addOnFailureListener {  exception ->
+                            Log.e("RecommendationAdapter", "Failed to load profile image", exception)
                             profileImage?.setImageResource(R.drawable.profile2)
                         }
                     }
+
                     override fun onCancelled(error: DatabaseError) {
                         Log.e("RecommendationAdapter", "Failed to load user data.", error.toException())
                     }
                 })
             }
+
         }
     }

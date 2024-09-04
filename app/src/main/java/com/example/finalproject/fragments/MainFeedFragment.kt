@@ -25,6 +25,9 @@ class MainFeedFragment : Fragment() {
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
 
+    private var scrollPosition: Int = 0
+    private var scrollOffset: Int = 0
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -34,6 +37,16 @@ class MainFeedFragment : Fragment() {
 
         recyclerView = view.findViewById(R.id.recyclerViewRecommendations)
         recyclerView.layoutManager = LinearLayoutManager(context)
+
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                scrollPosition = layoutManager.findFirstVisibleItemPosition()
+                val view = recyclerView.getChildAt(0)
+                scrollOffset = view?.top ?: 0
+            }
+        })
 
         database = FirebaseDatabase.getInstance().getReference("recommendations")
         auth = FirebaseAuth.getInstance()
@@ -52,9 +65,27 @@ class MainFeedFragment : Fragment() {
         )
         recyclerView.adapter = adapter
 
+        recyclerView.layoutManager?.scrollToPosition(scrollPosition)
+
         fetchRecommendations()
 
         return view
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+        scrollPosition = layoutManager.findFirstVisibleItemPosition()
+        val view = recyclerView.getChildAt(0)
+        scrollOffset = view?.top ?: 0
+        Log.d("MainFeedFragment", "Saved scrollPosition: $scrollPosition, scrollOffset: $scrollOffset")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+        layoutManager.scrollToPositionWithOffset(scrollPosition, scrollOffset)
+        Log.d("MainFeedFragment", "Restored scrollPosition: $scrollPosition, scrollOffset: $scrollOffset")
     }
 
     private fun fetchRecommendations() {
@@ -68,6 +99,11 @@ class MainFeedFragment : Fragment() {
                 }
                 recommendationsList.reverse()
                 adapter.updateRecommendations(recommendationsList)
+                recyclerView.post {
+                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                    layoutManager.scrollToPositionWithOffset(scrollPosition, scrollOffset)
+                    Log.d("MainFeedFragment", "Restored scrollPosition: $scrollPosition, scrollOffset: $scrollOffset")
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {

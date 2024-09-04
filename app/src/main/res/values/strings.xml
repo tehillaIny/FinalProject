@@ -1,8 +1,7 @@
 <resources>
-    <string name="app_name">FinalProject</string>
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="app_name">The perfect plate</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="profile_image">Profile Image</string>
     <string name="logo_image">Logo Image</string>
-    <string name="like_button">Like</string> <!-- Add this line -->
+    <string name="like_button">Like</string>
 </resources>

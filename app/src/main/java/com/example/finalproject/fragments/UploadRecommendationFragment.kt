@@ -29,11 +29,9 @@ class UploadRecommendationFragment : Fragment() {
 
     private var _binding: FragmentUploadRecommendationBinding? = null
     private val binding get() = _binding!!
-
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
     private lateinit var storage: FirebaseStorage
-
     private var selectedImageUri: Uri? = null
     private val selectedMoreImageUris = mutableListOf<Uri>()
 
@@ -195,7 +193,6 @@ class UploadRecommendationFragment : Fragment() {
             }
         }
     }
-
 
     private fun saveRecommendationToDatabase(
         restaurantName: String,

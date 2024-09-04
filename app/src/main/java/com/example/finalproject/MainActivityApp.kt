@@ -5,13 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
-import com.example.finalproject.R
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
 import android.widget.PopupMenu
-import androidx.fragment.app.Fragment
 import com.example.finalproject.databinding.ActivityMainAppBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
@@ -35,7 +30,6 @@ class MainActivityApp : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Inflate the binding layout and set it as the content view
         binding = ActivityMainAppBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -77,7 +71,6 @@ class MainActivityApp : AppCompatActivity() {
             this
         ) { isUpdated ->
             if (isUpdated) {
-                // Reload the profile image when it has been updated
                 loadProfileImage()
             }
         }
@@ -126,28 +119,26 @@ class MainActivityApp : AppCompatActivity() {
         if (user != null) {
             val userId = user.uid
             val storageRef = storage.reference.child("profile_images/$userId.jpg")
-
             storageRef.downloadUrl.addOnSuccessListener { uri ->
                 Glide.with(this)
                     .load(uri)
-                    .placeholder(R.drawable.profile1) // Placeholder image while loading
-                    .circleCrop() // Ensures the image is cropped into a circle
+                    .placeholder(R.drawable.profile1)
+                    .circleCrop()
                     .into(binding.profileImageView)
             }.addOnFailureListener {
-                // If there's an error (e.g., no profile image exists), load the default image with Glide
                 Glide.with(this)
                     .load(R.drawable.profile1)
                     .circleCrop()
                     .into(binding.profileImageView)
             }
         } else {
-            // If the user is not logged in or user data is unavailable, load the default image with Glide
             Glide.with(this)
                 .load(R.drawable.profile1)
                 .circleCrop()
                 .into(binding.profileImageView)
         }
     }
+
     private fun getUsername(callback: UsernameCallback) {
         val user = auth.currentUser
         if (user != null) {
@@ -164,8 +155,4 @@ class MainActivityApp : AppCompatActivity() {
         }
     }
 
-    private fun logout() {
-            auth.signOut()
-            // Redirect to login screen or handle logout logic
-        }
 }

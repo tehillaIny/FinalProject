@@ -15,7 +15,6 @@ import android.net.Uri
 import com.example.finalproject.MainActivityApp
 import androidx.navigation.fragment.findNavController
 import com.example.finalproject.R
-import android.util.Log
 import com.google.firebase.storage.FirebaseStorage
 
 class SignUpFragment : Fragment() {

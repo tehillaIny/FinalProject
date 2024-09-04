@@ -80,7 +80,6 @@ class MainFeedFragment : Fragment() {
         val recommendationId = adapter.getRecommendationId(position)
         val currentUserId = auth.currentUser?.uid ?: return
         val userLiked = recommendation.likes[currentUserId] == true
-
         val updates = hashMapOf<String, Any>(
             "likes/$currentUserId" to !userLiked,
             "likeCount" to if (userLiked) recommendation.likeCount - 1 else recommendation.likeCount + 1

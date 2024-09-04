@@ -7,24 +7,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.finalproject.databinding.FragmentProfileBinding
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.storage.FirebaseStorage
 import android.util.Log
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.finalproject.adapter.RecommendationAdapter
 import com.example.finalproject.models.Recommendation
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-
 
 class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
@@ -45,14 +42,10 @@ class ProfileFragment : Fragment() {
         database = FirebaseDatabase.getInstance()
         storage = FirebaseStorage.getInstance()
 
-        // Fetch user data from Firebase and populate the UI
-        populateUserProfile()
+        populateUserProfile() // Fetch user data from Firebase and populate the UI
+        setupRecyclerView() // Setup RecyclerView
 
-        // Setup RecyclerView
-        setupRecyclerView()
-
-        // Load user recommendations
-        loadUserRecommendations()
+        loadUserRecommendations() // Load user recommendations
 
         binding.editProfileButton.setOnClickListener {
             toggleEditMode(true)
@@ -68,7 +61,8 @@ class ProfileFragment : Fragment() {
 
         return binding.root
     }
-    // functions for gallery display of user's posts //
+
+    // functions for gallery display of user's posts
     private fun setupRecyclerView() {
         recommendationAdapter = RecommendationAdapter(
             recommendations,
@@ -99,7 +93,6 @@ class ProfileFragment : Fragment() {
                         // Update the adapter with new recommendations
                         (binding.galleryRecyclerView.adapter as? RecommendationAdapter)?.updateRecommendations(recommendations)
                     }
-
                     override fun onCancelled(error: DatabaseError) {
                         // Handle possible errors
                         Log.e("ProfileFragment", "Failed to load recommendations: ${error.message}")
@@ -107,6 +100,7 @@ class ProfileFragment : Fragment() {
                 })
         }
     }
+
     private fun updateLikeStatus(recommendation: Recommendation, position: Int) {
         val userId = auth.uid ?: return
         val updatedLikeStatus = !recommendation.likes[userId]!!

@@ -49,8 +49,7 @@ class GalleryAdapter(private val imageUrls: List<String>, private val context: C
         builder.setView(imageView)
             .setPositiveButton("Close") { dialog, _ -> dialog.dismiss() }
             .show()
-        //replace the logo image with another photo (error or something else)
-        imageView.setImageResource(R.drawable.logo)
+        imageView.setImageResource(R.drawable.error)
     }
 
     class GalleryViewHolder(view: View) : RecyclerView.ViewHolder(view) {

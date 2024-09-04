@@ -15,9 +15,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.storage.StorageReference
-import com.google.firebase.storage.ktx.storage
-import com.google.firebase.ktx.Firebase
 import com.bumptech.glide.Glide
 import androidx.navigation.fragment.navArgs
 import com.example.finalproject.adapters.CommentsAdapter
@@ -26,7 +23,6 @@ import com.google.firebase.auth.FirebaseAuth
 import androidx.recyclerview.widget.GridLayoutManager
 import android.util.Log
 import com.google.firebase.storage.FirebaseStorage
-import android.net.Uri
 
 
 class PostPageFragment : Fragment() {
@@ -34,7 +30,6 @@ class PostPageFragment : Fragment() {
     private var _binding: FragmentPostPageBinding? = null
     private val binding get() = _binding!!
 
-    //private lateinit var database: DatabaseReference
     private lateinit var database: FirebaseDatabase
 
     private val args: PostPageFragmentArgs by navArgs()
@@ -76,9 +71,8 @@ class PostPageFragment : Fragment() {
                 }
 
             }
-
             override fun onCancelled(error: DatabaseError) {
-                // Handle potential errors
+                Log.e("fetchRecommendation", "Failed to load recommendation data.", error.toException())
             }
         })
     }
@@ -128,8 +122,6 @@ class PostPageFragment : Fragment() {
         })
     }
 
-
-
     private fun fetchComments() {
         commentsRef.child(recommendationId).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -140,13 +132,12 @@ class PostPageFragment : Fragment() {
                 }
                 updateCommentsUI(comments)
             }
-
             override fun onCancelled(error: DatabaseError) {
-                // Handle potential errors
+                Log.e("fetchRecommendation", "Failed to load comments data.", error.toException())
+
             }
         })
     }
-
 
     private fun updateCommentsUI(comments: List<Comment>) {
         val adapter = CommentsAdapter(comments)
@@ -181,7 +172,6 @@ class PostPageFragment : Fragment() {
             }
         }
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

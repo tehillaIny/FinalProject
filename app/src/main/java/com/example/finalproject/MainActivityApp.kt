@@ -33,6 +33,12 @@ class MainActivityApp : AppCompatActivity() {
         binding = ActivityMainAppBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Set the custom action bar
+        supportActionBar?.apply {
+            displayOptions = androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM
+            setCustomView(R.layout.custom_action_bar)
+        }
+
         auth = FirebaseAuth.getInstance()
         storage = FirebaseStorage.getInstance()
 

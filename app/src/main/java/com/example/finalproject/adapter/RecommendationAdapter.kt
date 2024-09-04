@@ -117,30 +117,47 @@
             ) {
                 usersDatabase.child(recommendation.userId).addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        val userName = snapshot.child("username").getValue(String::class.java) ?: "Unknown"
+                        val userName =
+                            snapshot.child("username").getValue(String::class.java) ?: "Unknown"
                         val userId = recommendation.userId
                         val profilePicRef = storage.reference.child("profile_images/$userId.jpg")
-                        Log.d("RecommendationAdapter", "Fetching image from path: profile_images/$userId.jpg")
+                        Log.d(
+                            "RecommendationAdapter",
+                            "Fetching image from path: profile_images/$userId.jpg"
+                        )
 
                         username?.text = userName
 
-                        profilePicRef.downloadUrl.addOnSuccessListener { uri: Uri ->
-                            Glide.with(itemView.context)
-                                .load(uri.toString())
-                                .placeholder(R.drawable.profile2) // Placeholder while loading
-                                .circleCrop()
-                                .into(profileImage ?: return@addOnSuccessListener)
-                        }.addOnFailureListener {  exception ->
-                            Log.e("RecommendationAdapter", "Failed to load profile image", exception)
+                        profilePicRef.listAll().addOnSuccessListener { result ->
+                            if (result.items.isEmpty()) {
+                                // Handle the case where the image does not exist
+                                profileImage?.setImageResource(R.drawable.profile2)
+                            } else {
+                                // Image exists, proceed with download URL
+                                profilePicRef.downloadUrl.addOnSuccessListener { uri ->
+                                    Glide.with(itemView.context)
+                                        .load(uri)
+                                        .placeholder(R.drawable.profile2)
+                                        .circleCrop()
+                                        .into(profileImage ?: return@addOnSuccessListener)
+                                }.addOnFailureListener { exception ->
+                                    Log.e(
+                                        "RecommendationAdapter",
+                                        "Failed to load profile image",
+                                        exception
+                                    )
+                                    profileImage?.setImageResource(R.drawable.profile2)
+                                }
+                            }
+                        }.addOnFailureListener { exception ->
+                            Log.e("RecommendationAdapter", "Failed to list images", exception)
                             profileImage?.setImageResource(R.drawable.profile2)
                         }
                     }
-
-                    override fun onCancelled(error: DatabaseError) {
+                        override fun onCancelled(error: DatabaseError) {
                         Log.e("RecommendationAdapter", "Failed to load user data.", error.toException())
                     }
                 })
             }
-
         }
     }

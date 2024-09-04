@@ -14,6 +14,7 @@ import com.example.finalproject.adapter.RecommendationAdapter
 import com.example.finalproject.models.Recommendation
 import com.google.firebase.database.*
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 
 class MainFeedFragment : Fragment() {
 
@@ -22,6 +23,7 @@ class MainFeedFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: RecommendationAdapter
     private lateinit var database: DatabaseReference
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,10 +34,23 @@ class MainFeedFragment : Fragment() {
 
         recyclerView = view.findViewById(R.id.recyclerViewRecommendations)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        // Initialize Firebase Database
-        database = FirebaseDatabase.getInstance().getReference("recommendations")
 
-        // Fetch data from Firebase
+        database = FirebaseDatabase.getInstance().getReference("recommendations")
+        auth = FirebaseAuth.getInstance()
+
+        adapter = RecommendationAdapter(
+            mutableListOf(),
+            onItemClick = { recommendationId ->
+                val action = MainFeedFragmentDirections.actionMainFeedFragmentToPostPageFragment(recommendationId)
+                findNavController().navigate(action)
+            },
+            onLikeClick = { recommendation, position ->
+                updateLikeStatus(recommendation, position)
+            },
+            currentUserId = auth.currentUser?.uid ?: ""
+        )
+        recyclerView.adapter = adapter
+
         fetchRecommendations()
 
         return view
@@ -50,28 +65,39 @@ class MainFeedFragment : Fragment() {
                     val recommendation = recommendationSnapshot.getValue(Recommendation::class.java)
                     recommendation?.let { recommendationsList.add(Pair(recommendationId, it)) }
                 }
-                adapter = RecommendationAdapter(
-                    recommendationsList,
-                    onItemClick = { recommendationId ->
-                        val action = MainFeedFragmentDirections.actionMainFeedFragmentToPostPageFragment(recommendationId)
-                        findNavController().navigate(action)
-                    },
-                    onLikeClick = { recommendation ->
-                        // add Handle like button click if needed
-                    }
-                )
-                recyclerView.adapter = adapter
-
+                adapter.updateRecommendations(recommendationsList)
             }
-
-
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle potential errors
                 Log.e("MainFeedFragment", "Failed to load recommendations.", error.toException())
             }
-
         })
+    }
+
+    private fun updateLikeStatus(recommendation: Recommendation, position: Int) {
+        val recommendationId = adapter.getRecommendationId(position)
+        val currentUserId = auth.currentUser?.uid ?: return
+        val userLiked = recommendation.likes[currentUserId] == true
+
+        val updates = hashMapOf<String, Any>(
+            "likes/$currentUserId" to !userLiked,
+            "likeCount" to if (userLiked) recommendation.likeCount - 1 else recommendation.likeCount + 1
+        )
+
+        database.child(recommendationId).updateChildren(updates)
+            .addOnSuccessListener {
+                // Update successful
+                val updatedRecommendation = recommendation.copy(
+                    likes = recommendation.likes.toMutableMap().apply {
+                        if (userLiked) remove(currentUserId) else put(currentUserId, true)
+                    },
+                    likeCount = if (userLiked) recommendation.likeCount - 1 else recommendation.likeCount + 1
+                )
+                adapter.updateLikeStatus(position, updatedRecommendation)
+            }
+            .addOnFailureListener { e ->
+                Log.e("MainFeedFragment", "Error updating like status", e)
+            }
     }
 
     override fun onDestroyView() {

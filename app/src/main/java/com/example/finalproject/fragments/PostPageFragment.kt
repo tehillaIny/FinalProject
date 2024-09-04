@@ -75,17 +75,14 @@ class PostPageFragment : Fragment() {
         })
     }
     private fun bindRecommendation(recommendation: Recommendation) {
+        if (_binding == null) {
+            Log.e("PostPageFragment", "Binding is null")
+            return
+        }
         binding.textViewRestaurantName.text = recommendation.restaurantName
         binding.textViewAddress.text = recommendation.address
-
-        Glide.with(binding.imageViewMain)
-            .load(recommendation.mainImageUrl)
-            .into(binding.imageViewMain)
-
+        Glide.with(binding.imageViewMain).load(recommendation.mainImageUrl).into(binding.imageViewMain)
         binding.textViewDescription.text = recommendation.description
-
-        // Initialize the adapter and set it to the RecyclerView
-//        val galleryAdapter = GalleryAdapter(recommendation.imageUrls)
 
         val galleryAdapter = GalleryAdapter(recommendation.imageUrls, requireContext())
         val layoutManager = GridLayoutManager(context, 3)

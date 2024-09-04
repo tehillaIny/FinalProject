@@ -8,5 +8,8 @@ data class Recommendation(
     val type: String = "",
     val description: String = "",
     val mainImageUrl: String = "",
-    val imageUrls: List<String> = emptyList()
+    val imageUrls: List<String> = emptyList(),
+    var likeCount: Int = 0,
+    var isLikedByUser: Boolean = false,
+    var likes: MutableMap<String, Boolean> = mutableMapOf()
 )

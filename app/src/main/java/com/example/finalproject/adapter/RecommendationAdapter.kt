@@ -1,58 +1,87 @@
-package com.example.finalproject.adapter
+    package com.example.finalproject.adapter
+    
+    import android.view.LayoutInflater
+    import android.view.View
+    import android.view.ViewGroup
+    import android.widget.ImageView
+    import android.widget.ImageButton
+    import android.widget.TextView
+    import androidx.recyclerview.widget.RecyclerView
+    import com.bumptech.glide.Glide
+    import com.example.finalproject.R
+    import com.example.finalproject.models.Recommendation
+    import com.google.firebase.database.DatabaseReference
+    import com.google.firebase.database.FirebaseDatabase
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.ImageButton
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.example.finalproject.R
-import com.example.finalproject.models.Recommendation
+    class RecommendationAdapter(
+        private var recommendations: MutableList<Pair<String, Recommendation>>,
+        private val onItemClick: (String) -> Unit,
+        private val onLikeClick: (Recommendation, Int) -> Unit,
+        private val currentUserId: String
+    ) : RecyclerView.Adapter<RecommendationAdapter.RecommendationViewHolder>() {
 
-class RecommendationAdapter(
-    private val recommendations: List<Pair<String, Recommendation>>, // List of Pair<recommendationId, Recommendation>
-    private val onItemClick: (String) -> Unit,       // Pass recommendationId and Recommendation
-    private val onLikeClick: (Recommendation) -> Unit
-) : RecyclerView.Adapter<RecommendationAdapter.RecommendationViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecommendationViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_recommendation, parent, false)
+            return RecommendationViewHolder(view)
+        }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecommendationViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_recommendation, parent, false)
-        return RecommendationViewHolder(view)
-    }
+        override fun onBindViewHolder(holder: RecommendationViewHolder, position: Int) {
+            val (recommendationId, recommendation) = recommendations[position]
+            holder.bind(recommendationId, recommendation, onItemClick, onLikeClick, currentUserId, position)
+        }
 
-    override fun onBindViewHolder(holder: RecommendationViewHolder, position: Int) {
-        val (recommendationId, recommendation) = recommendations[position]
-        holder.bind(recommendationId, recommendation, onItemClick, onLikeClick)
-    }
+        override fun getItemCount() = recommendations.size
 
-    override fun getItemCount() = recommendations.size
+        fun updateRecommendations(newRecommendations: List<Pair<String, Recommendation>>) {
+            recommendations = newRecommendations.toMutableList()
+            notifyDataSetChanged()
+        }
 
-    class RecommendationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val title: TextView = itemView.findViewById(R.id.titleTextView)
-        private val description: TextView = itemView.findViewById(R.id.descriptionTextView)
-        private val image: ImageView = itemView.findViewById(R.id.imageView)
-        private val likeButton: ImageButton = itemView.findViewById(R.id.likeButton)
+        fun updateLikeStatus(position: Int, updatedRecommendation: Recommendation) {
+            if (position in recommendations.indices) {
+                recommendations[position] = recommendations[position].first to updatedRecommendation
+                notifyItemChanged(position, "like_updated")
+            }
+        }
 
-        fun bind(
-            recommendationId: String,                             // Accept recommendationId
-            recommendation: Recommendation,
-            onItemClick: (String) -> Unit,        // Pass recommendationId and Recommendation
-            onLikeClick: (Recommendation) -> Unit
-        ) {
-            title.text = recommendation.restaurantName
-            description.text = recommendation.description
-            Glide.with(itemView.context).load(recommendation.mainImageUrl).into(image)
+        fun getRecommendationId(position: Int): String {
+            return recommendations[position].first
+        }
 
-            itemView.setOnClickListener {
-                onItemClick(recommendationId)      // Pass recommendationId when clicked
+        class RecommendationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            private val title: TextView = itemView.findViewById(R.id.titleTextView)
+            private val description: TextView = itemView.findViewById(R.id.descriptionTextView)
+            private val image: ImageView = itemView.findViewById(R.id.imageView)
+            private val likeButton: ImageButton = itemView.findViewById(R.id.likeButton)
+            private val likeCount: TextView = itemView.findViewById(R.id.likeCountTextView)
+
+            fun bind(
+                recommendationId: String,
+                recommendation: Recommendation,
+                onItemClick: (String) -> Unit,
+                onLikeClick: (Recommendation, Int) -> Unit,
+                currentUserId: String,
+                position: Int
+            ) {
+                title.text = recommendation.restaurantName
+                description.text = recommendation.description
+                Glide.with(itemView.context).load(recommendation.mainImageUrl).into(image)
+
+                updateLikeButton(recommendation.likes[currentUserId] == true, recommendation.likeCount)
+
+                itemView.setOnClickListener {
+                    onItemClick(recommendationId)
+                }
+
+                likeButton.setOnClickListener {
+                    onLikeClick(recommendation, position)
+                }
             }
 
-            likeButton.setOnClickListener {
-                onLikeClick(recommendation)
+            fun updateLikeButton(userHasLiked: Boolean, likeCount: Int) {
+                likeButton.setImageResource(if (userHasLiked) R.drawable.full_heart else R.drawable.empty_heart)
+                this.likeCount.text = likeCount.toString()
             }
         }
     }
-}

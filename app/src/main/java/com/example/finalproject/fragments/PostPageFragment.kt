@@ -40,21 +40,22 @@ class PostPageFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentPostPageBinding.inflate(inflater, container, false)
-        // Get the recommendation ID from the arguments
-        val view = binding.root
-        // Initialize Firebase Database reference
-        //database = FirebaseDatabase.getInstance().getReference("recommendations")
+        val view = binding?.root
+
         database = FirebaseDatabase.getInstance()
         commentsRef = FirebaseDatabase.getInstance().getReference("comments")
         recommendationId = args.recommendationId
         auth = FirebaseAuth.getInstance()
 
-        // Fetch and display the recommendation data
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         fetchRecommendation()
-        binding.buttonAddComment.setOnClickListener {
+        binding?.buttonAddComment?.setOnClickListener {
             addComment()
         }
-        return view
     }
 
     private fun fetchRecommendation() {

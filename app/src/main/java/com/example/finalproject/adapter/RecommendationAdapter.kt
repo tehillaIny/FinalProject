@@ -12,13 +12,24 @@
     import com.example.finalproject.models.Recommendation
     import com.google.firebase.database.DatabaseReference
     import com.google.firebase.database.FirebaseDatabase
+    import com.google.firebase.database.ValueEventListener
+    import com.google.firebase.database.DataSnapshot
+    import com.google.firebase.database.DatabaseError
+    import com.google.firebase.storage.FirebaseStorage
+    import com.google.firebase.storage.StorageReference
+    import android.util.Log
+    import android.net.Uri
+
 
     class RecommendationAdapter(
         private var recommendations: MutableList<Pair<String, Recommendation>>,
         private val onItemClick: (String) -> Unit,
         private val onLikeClick: (Recommendation, Int) -> Unit,
-        private val currentUserId: String
+        private val currentUserId: String,
     ) : RecyclerView.Adapter<RecommendationAdapter.RecommendationViewHolder>() {
+
+        private val usersDatabase: DatabaseReference = FirebaseDatabase.getInstance().getReference("users")
+        private val storage: FirebaseStorage = FirebaseStorage.getInstance()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecommendationViewHolder {
             val view = LayoutInflater.from(parent.context)
@@ -28,7 +39,7 @@
 
         override fun onBindViewHolder(holder: RecommendationViewHolder, position: Int) {
             val (recommendationId, recommendation) = recommendations[position]
-            holder.bind(recommendationId, recommendation, onItemClick, onLikeClick, currentUserId, position)
+            holder.bind(recommendationId, recommendation, onItemClick, onLikeClick, currentUserId, position,usersDatabase, storage)
         }
 
         override fun getItemCount() = recommendations.size
@@ -55,6 +66,8 @@
             private val image: ImageView = itemView.findViewById(R.id.imageView)
             private val likeButton: ImageButton = itemView.findViewById(R.id.likeButton)
             private val likeCount: TextView = itemView.findViewById(R.id.likeCountTextView)
+            private val profileImage: ImageView = itemView.findViewById(R.id.profileImageView)
+            private val username: TextView = itemView.findViewById(R.id.usernameTextView)
 
             fun bind(
                 recommendationId: String,
@@ -62,11 +75,37 @@
                 onItemClick: (String) -> Unit,
                 onLikeClick: (Recommendation, Int) -> Unit,
                 currentUserId: String,
-                position: Int
+                position: Int,
+                usersDatabase: DatabaseReference,
+                storage: FirebaseStorage
             ) {
                 title.text = recommendation.restaurantName
                 description.text = recommendation.description
                 Glide.with(itemView.context).load(recommendation.mainImageUrl).into(image)
+
+                usersDatabase.child(recommendation.userId).addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val userName = snapshot.child("username").getValue(String::class.java) ?: "Unknown"
+                        //val profilePicUrl = snapshot.child("profilePicUrl").getValue(String::class.java)
+                        val userId = recommendation.userId
+                        val profilePicRef = storage.reference.child("profile_images/$userId.jpg")
+
+                        username.text = userName
+                        profilePicRef.downloadUrl.addOnSuccessListener { uri: Uri ->
+                            Glide.with(itemView.context)
+                                .load(uri.toString())
+                                .placeholder(R.drawable.profile2)
+                                .circleCrop()
+                                .into(profileImage)
+                        }.addOnFailureListener {
+                            profileImage.setImageResource(R.drawable.profile2)
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("RecommendationAdapter", "Failed to load user data.", error.toException())
+                    }
+                })
 
                 updateLikeButton(recommendation.likes[currentUserId] == true, recommendation.likeCount)
 

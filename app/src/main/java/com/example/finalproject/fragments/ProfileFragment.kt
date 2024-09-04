@@ -23,6 +23,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 
 class ProfileFragment : Fragment() {
@@ -47,6 +48,12 @@ class ProfileFragment : Fragment() {
         // Fetch user data from Firebase and populate the UI
         populateUserProfile()
 
+        // Setup RecyclerView
+        setupRecyclerView()
+
+        // Load user recommendations
+        loadUserRecommendations()
+
         binding.editProfileButton.setOnClickListener {
             toggleEditMode(true)
         }
@@ -59,11 +66,6 @@ class ProfileFragment : Fragment() {
             selectImageFromGallery()
         }
 
-        // Setup RecyclerView
-        setupRecyclerView()
-
-        // Load user recommendations
-        loadUserRecommendations()
         return binding.root
     }
     // functions for gallery display of user's posts //
@@ -73,11 +75,12 @@ class ProfileFragment : Fragment() {
             { recommendationId -> /* Handle item click */ },
             { recommendation, position -> updateLikeStatus(recommendation, position) },
             auth.uid ?: "",
+            isProfileView = true // Use profile view layout
         )
 
-        // Set up the GridLayoutManager with 3 columns
-        binding.recommendationRecyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
-        binding.recommendationRecyclerView.adapter = recommendationAdapter
+        val gridLayoutManager = GridLayoutManager(requireContext(), 3)
+        binding.galleryRecyclerView.layoutManager = gridLayoutManager
+        binding.galleryRecyclerView.adapter = recommendationAdapter
     }
 
     private fun loadUserRecommendations() {
@@ -93,7 +96,8 @@ class ProfileFragment : Fragment() {
                                 recommendations.add(recommendationSnapshot.key!! to recommendation)
                             }
                         }
-                        recommendationAdapter.updateRecommendations(recommendations)
+                        // Update the adapter with new recommendations
+                        (binding.galleryRecyclerView.adapter as? RecommendationAdapter)?.updateRecommendations(recommendations)
                     }
 
                     override fun onCancelled(error: DatabaseError) {
@@ -161,7 +165,7 @@ class ProfileFragment : Fragment() {
         binding.editProfileButton.visibility = if (isEditing) View.GONE else View.VISIBLE
 
         binding.editProfileLayout.visibility = if (isEditing) View.VISIBLE else View.GONE
-        binding.recommendationRecyclerView.visibility = if (isEditing) View.GONE else View.VISIBLE
+        binding.galleryRecyclerView.visibility = if (isEditing) View.GONE else View.VISIBLE
     }
 
     // Verify current password and then save changes

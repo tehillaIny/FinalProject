@@ -47,7 +47,8 @@ class MainFeedFragment : Fragment() {
             onLikeClick = { recommendation, position ->
                 updateLikeStatus(recommendation, position)
             },
-            currentUserId = auth.currentUser?.uid ?: ""
+            currentUserId = auth.currentUser?.uid ?: "",
+            isProfileView = false // Set to false for MainFeedFragment
         )
         recyclerView.adapter = adapter
 

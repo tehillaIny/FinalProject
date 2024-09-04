@@ -43,7 +43,7 @@ class ProfileFragment : Fragment() {
         }
         // save changes
         binding.saveButton.setOnClickListener {
-            saveUserProfile()
+            verifyCurrentPasswordAndSave()
         }
 
         binding.changeProfileImageTextView.setOnClickListener {
@@ -88,6 +88,7 @@ class ProfileFragment : Fragment() {
             binding.profileImageView.setImageResource(R.drawable.profile2) // default image
         }
     }
+
     // Edit profile //
     private fun toggleEditMode(isEditing: Boolean) {
         binding.usernameTextView.visibility = if (isEditing) View.GONE else View.VISIBLE
@@ -96,6 +97,34 @@ class ProfileFragment : Fragment() {
 
         binding.editProfileLayout.visibility = if (isEditing) View.VISIBLE else View.GONE
     }
+
+    // Verify current password and then save changes
+    private fun verifyCurrentPasswordAndSave() {
+        val user = auth.currentUser
+        if (user != null) {
+            val currentPassword = binding.currentPasswordEditText.text.toString()
+            val email = user.email!!
+
+            if (currentPassword.isEmpty()) {
+                binding.currentPasswordEditText.error = "Current password is required"
+                return
+            }
+
+            // Re-authenticate the user with the current password
+            auth.signInWithEmailAndPassword(email, currentPassword)
+                .addOnCompleteListener { authTask ->
+                    if (authTask.isSuccessful) {
+                        // Current password is correct, proceed with saving profile changes
+                        saveUserProfile()
+                    } else {
+                        // Current password is incorrect, show error message
+                        Log.e("ProfileFragment", "Current password is incorrect: ${authTask.exception?.message}")
+                        binding.currentPasswordEditText.error = "Current password is incorrect"
+                    }
+                }
+        }
+    }
+
     // save changes
     private fun saveUserProfile() {
         val user = auth.currentUser
@@ -105,37 +134,35 @@ class ProfileFragment : Fragment() {
             val newUsername = binding.usernameEditText.text.toString()
             val newPassword = binding.passwordEditText.text.toString()
             val confirmPassword = binding.confirmPasswordEditText.text.toString()
-            val currentPassword = binding.currentPasswordEditText.text.toString()
 
             // Check if passwords match
-            if (newPassword != confirmPassword) {
-                // Show error message to user if passwords do not match
+            if (newPassword.isNotEmpty() && newPassword != confirmPassword) {
                 Log.e("ProfileFragment", "Passwords do not match.")
                 binding.confirmPasswordEditText.error = "Passwords do not match"
                 return
             }
+            // Check if passwords are at least 6 characters long
+            if (newPassword.isNotEmpty() && newPassword.length < 6) {
+                Log.e("ProfileFragment", "Password is too short.")
+                binding.passwordEditText.error = "Password must be at least 6 characters long"
+                return
+            }
+
             // Update username in Firebase Realtime Database
             userRef.child("username").setValue(newUsername)
 
             // Update password in Firebase Authentication
             if (newPassword.isNotEmpty()) {
-                // Re-authenticate the user before updating the password
-                auth.signInWithEmailAndPassword(user.email!!, currentPassword).addOnCompleteListener { authTask ->
-                    if (authTask.isSuccessful) {
-                        user.updatePassword(newPassword).addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                Log.d("ProfileFragment", "User password updated successfully.")
-                            } else {
-                                Log.e("ProfileFragment", "Failed to update password: ${task.exception?.message}")
-                                binding.passwordEditText.error = "Failed to update password: ${task.exception?.message}"
-                            }
-                        }
+                user.updatePassword(newPassword).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("ProfileFragment", "User password updated successfully.")
                     } else {
-                        Log.e("ProfileFragment", "Re-authentication failed: ${authTask.exception?.message}")
-                        binding.currentPasswordEditText.error = "Re-authentication failed: ${authTask.exception?.message}"
+                        Log.e("ProfileFragment", "Failed to update password: ${task.exception?.message}")
+                        binding.passwordEditText.error = "Failed to update password: ${task.exception?.message}"
                     }
                 }
             }
+
             // Optionally show a message to the user
             Log.d("ProfileFragment", "User profile updated successfully.")
 
@@ -144,13 +171,17 @@ class ProfileFragment : Fragment() {
 
             // Update the profile view with new data
             binding.usernameTextView.text = newUsername
+        } else {
+            Log.e("ProfileFragment", "User is null.")
         }
     }
+
     private fun selectImageFromGallery() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
         startActivityForResult(intent, REQUEST_CODE_IMAGE_PICK)
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE_IMAGE_PICK && resultCode == AppCompatActivity.RESULT_OK) {
@@ -160,6 +191,7 @@ class ProfileFragment : Fragment() {
             }
         }
     }
+
     private fun uploadProfileImageToFirebase(imageUri: Uri) {
         val user = auth.currentUser
         if (user != null) {
@@ -173,16 +205,21 @@ class ProfileFragment : Fragment() {
                         .placeholder(R.drawable.profile2)
                         .into(binding.profileImageView)
                     Log.d("ProfileFragment", "Profile image uploaded successfully.")
+
+                    // Set the navigation result to notify the MainActivityApp
+                    findNavController().previousBackStackEntry?.savedStateHandle?.set("profileImageUpdated", true)
                 }
             }.addOnFailureListener {
                 Log.e("ProfileFragment", "Failed to upload profile image: ${it.message}")
             }
         }
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
     companion object {
         private const val REQUEST_CODE_IMAGE_PICK = 1001
     }

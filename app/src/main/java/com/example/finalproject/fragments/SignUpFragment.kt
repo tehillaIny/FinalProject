@@ -71,6 +71,11 @@ class SignUpFragment : Fragment() {
     }
 
     private fun signUpUser(username: String, email: String, password: String) {
+        // Check if the password is less than 6 characters
+        if (password.length < 6) {
+            Toast.makeText(requireContext(), "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
+            return
+        }
         // Show the progress bar
         binding.signUpProgressBar.visibility = View.VISIBLE
         binding.uploadProgressTextView.visibility = View.VISIBLE

@@ -64,8 +64,8 @@
         }
 
         class RecommendationViewHolder(itemView: View, private val isProfileView: Boolean) : RecyclerView.ViewHolder(itemView) {
-            private val title: TextView? = if (!isProfileView) itemView.findViewById(R.id.titleTextView) else null
-            private val description: TextView? = itemView.findViewById(R.id.descriptionTextView)
+            private val title: TextView? = itemView.findViewById(R.id.titleTextView)
+            //private val description: TextView? = itemView.findViewById(R.id.descriptionTextView)
             private val image: ImageView = itemView.findViewById(R.id.imageView)
             private val likeButton: ImageButton? = if (!isProfileView) itemView.findViewById(R.id.likeButton) else null
             private val likeCount: TextView? = if (!isProfileView) itemView.findViewById(R.id.likeCountTextView) else null
@@ -80,10 +80,9 @@
                 position: Int
             ) {
                 if (isProfileView) {
-                    description?.text = recommendation.description
+                    title?.text = recommendation.restaurantName
                 } else {
                     title?.text = recommendation.restaurantName
-                    description?.text = recommendation.description
                 }
                 Glide.with(itemView.context).load(recommendation.mainImageUrl).into(image)
 

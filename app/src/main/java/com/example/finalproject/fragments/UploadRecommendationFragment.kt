@@ -119,6 +119,10 @@ class UploadRecommendationFragment : Fragment() {
                 .show()
             return
         }
+        binding.uploadProgressBar.visibility = View.VISIBLE
+        binding.uploadProgressTextView.visibility = View.VISIBLE
+        binding.submitRecommendationButton.isEnabled = false
+
         // Upload main image
         val ref =
             storage.reference.child("recommendation_photos/${auth.uid}/${System.currentTimeMillis()}.jpg")
@@ -130,6 +134,9 @@ class UploadRecommendationFragment : Fragment() {
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Image upload failed", Toast.LENGTH_SHORT).show()
+                binding.uploadProgressBar.visibility = View.GONE
+                binding.uploadProgressTextView.visibility = View.GONE
+                binding.submitRecommendationButton.isEnabled = true
             }
     }
 
@@ -160,7 +167,7 @@ class UploadRecommendationFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         val progress = ((index + 1) / selectedMoreImageUris.size.toFloat()) * 100
                         binding.uploadProgressBar.progress = progress.toInt()
-                        binding.uploadProgressTextView.text = "Uploading... ${progress.toInt()}%"
+                        binding.uploadProgressTextView.text = "Uploaded ${progress.toInt()}%"
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
@@ -179,6 +186,7 @@ class UploadRecommendationFragment : Fragment() {
             withContext(Dispatchers.Main) {
                 binding.uploadProgressBar.visibility = View.GONE
                 binding.uploadProgressTextView.visibility = View.GONE
+                binding.submitRecommendationButton.isEnabled = true
             }
 
             // Once all images are uploaded, save to the database

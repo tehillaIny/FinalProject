@@ -51,7 +51,15 @@ class MainActivityApp : AppCompatActivity() {
             val bottomNavigationView = binding.bottomNavigation
             NavigationUI.setupWithNavController(bottomNavigationView, navController)
         }
-
+        // Observe navigation result for profile image update
+        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("profileImageUpdated")?.observe(
+            this
+        ) { isUpdated ->
+            if (isUpdated) {
+                // Reload the profile image when it has been updated
+                loadProfileImage()
+            }
+        }
         loadProfileImage()
         // Handle profile image click to show popup menu
         binding.profileImageView.setOnClickListener {

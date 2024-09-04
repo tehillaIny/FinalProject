@@ -86,7 +86,6 @@
                 usersDatabase.child(recommendation.userId).addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val userName = snapshot.child("username").getValue(String::class.java) ?: "Unknown"
-                        //val profilePicUrl = snapshot.child("profilePicUrl").getValue(String::class.java)
                         val userId = recommendation.userId
                         val profilePicRef = storage.reference.child("profile_images/$userId.jpg")
 

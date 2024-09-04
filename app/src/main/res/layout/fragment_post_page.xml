@@ -18,6 +18,33 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="16dp">
+
+                <ImageView
+                    android:id="@+id/imageViewProfile"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/profile2"
+                    android:contentDescription="@string/profile_image"
+                    android:background="@drawable/circle_background"
+                    android:scaleType="centerCrop"/>
+
+                <TextView
+                    android:id="@+id/textViewUserName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="User Name"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
+
             <!-- Place Name -->
             <TextView
                 android:id="@+id/textViewRestaurantName"
@@ -38,17 +65,6 @@
                 android:textSize="16sp"
                 android:paddingBottom="8dp"
                 tools:text="Address" />
-
-            <!-- User Name -->
-            <TextView
-                android:id="@+id/textViewUserName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@{recommendation.userId}"
-                android:textSize="14sp"
-                android:textColor="@android:color/darker_gray"
-                android:paddingBottom="16dp"
-                tools:text="Uploaded by: Username" />
 
             <!-- Main Image -->
             <ImageView

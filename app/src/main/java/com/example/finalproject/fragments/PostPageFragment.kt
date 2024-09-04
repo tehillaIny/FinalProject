@@ -3,6 +3,7 @@ package com.example.finalproject.fragments
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import com.example.finalproject.R
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.ktx.storage
+import com.google.firebase.ktx.Firebase
 import com.bumptech.glide.Glide
 import androidx.navigation.fragment.navArgs
 import com.example.finalproject.adapters.CommentsAdapter
@@ -21,6 +25,9 @@ import com.example.finalproject.adapter.GalleryAdapter
 import com.google.firebase.auth.FirebaseAuth
 import androidx.recyclerview.widget.GridLayoutManager
 import android.util.Log
+import com.google.firebase.storage.FirebaseStorage
+import android.net.Uri
+
 
 class PostPageFragment : Fragment() {
 
@@ -85,11 +92,43 @@ class PostPageFragment : Fragment() {
         Glide.with(binding.imageViewMain).load(recommendation.mainImageUrl).into(binding.imageViewMain)
         binding.textViewDescription.text = recommendation.description
 
+        fetchUserProfile(recommendation.userId)
+
         val galleryAdapter = GalleryAdapter(recommendation.imageUrls, requireContext())
         val layoutManager = GridLayoutManager(context, 3)
         binding.galleryRecyclerView.layoutManager = layoutManager
         binding.galleryRecyclerView.adapter = galleryAdapter
     }
+
+    private fun fetchUserProfile(userId: String) {
+        val userDatabase = FirebaseDatabase.getInstance().getReference("users")
+        val storage = FirebaseStorage.getInstance()
+        val userRef = userDatabase.child(userId)
+
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userName = snapshot.child("username").getValue(String::class.java) ?: "Unknown"
+                binding.textViewUserName.text = userName
+                val profilePicRef = storage.reference.child("profile_images/$userId.jpg")
+
+                profilePicRef.downloadUrl.addOnSuccessListener { uri ->
+                    Glide.with(this@PostPageFragment)
+                        .load(uri)
+                        .placeholder(R.drawable.profile2)
+                        .circleCrop()
+                        .into(binding.imageViewProfile)
+                }.addOnFailureListener {
+                    binding.imageViewProfile.setImageResource(R.drawable.profile2)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("PostPageFragment", "Failed to load user data.", error.toException())
+            }
+        })
+    }
+
+
 
     private fun fetchComments() {
         commentsRef.child(recommendationId).addValueEventListener(object : ValueEventListener {

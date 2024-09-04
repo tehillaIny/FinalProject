@@ -66,6 +66,7 @@ class MainFeedFragment : Fragment() {
                     val recommendation = recommendationSnapshot.getValue(Recommendation::class.java)
                     recommendation?.let { recommendationsList.add(Pair(recommendationId, it)) }
                 }
+                recommendationsList.reverse()
                 adapter.updateRecommendations(recommendationsList)
             }
 

@@ -214,7 +214,8 @@ class UploadRecommendationFragment : Fragment() {
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Recommendation submitted", Toast.LENGTH_SHORT)
                     .show()
-                //findNavController().navigate(R.id.action_uploadRecommendationFragment_to_mainFeedFragment)
+                clearFields()
+                findNavController().navigate(R.id.action_uploadRecommendationFragment_to_mainFeedFragment)
             }
             .addOnFailureListener {
                 Toast.makeText(
@@ -223,6 +224,22 @@ class UploadRecommendationFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+    }
+
+    private fun clearFields() {
+        // Clear text fields
+        binding.restaurantNameEditText.text.clear()
+        binding.addressEditText.text.clear()
+        binding.typeEditText.text.clear()
+        binding.descriptionEditText.text.clear()
+
+        // Reset image buttons
+        binding.uploadPostPhotoButton.text = "Select Main Image"
+        binding.uploadMorePhotosButton.text = "Select More Images"
+
+        // Clear selected images
+        selectedImageUri = null
+        selectedMoreImageUris.clear()
     }
 
     override fun onDestroyView() {

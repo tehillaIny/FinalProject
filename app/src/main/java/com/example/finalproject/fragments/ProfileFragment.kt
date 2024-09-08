@@ -273,10 +273,14 @@ class ProfileFragment : Fragment() {
                         .load(uri)
                         .placeholder(R.drawable.profile2)
                         .into(binding.profileImageView)
+
                     Log.d("ProfileFragment", "Profile image uploaded successfully.")
 
                     // Set the navigation result to notify the MainActivityApp
-                    findNavController().previousBackStackEntry?.savedStateHandle?.set("profileImageUpdated", true)
+                    findNavController().previousBackStackEntry?.savedStateHandle?.set(
+                        "profileImageUpdated",
+                        true
+                    )
                 }
             }.addOnFailureListener {
                 Log.e("ProfileFragment", "Failed to upload profile image: ${it.message}")

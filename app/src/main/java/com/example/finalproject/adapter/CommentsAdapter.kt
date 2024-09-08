@@ -9,7 +9,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.Date
 
-class CommentsAdapter(private val comments: List<Comment>) : RecyclerView.Adapter<CommentsAdapter.CommentViewHolder>() {
+class CommentsAdapter(private val comments: List<Comment>) :
+    RecyclerView.Adapter<CommentsAdapter.CommentViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
         val binding = ItemCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -24,8 +25,9 @@ class CommentsAdapter(private val comments: List<Comment>) : RecyclerView.Adapte
     override fun getItemCount(): Int {
         return comments.size
     }
-
-    inner class CommentViewHolder(private val binding: ItemCommentBinding) : RecyclerView.ViewHolder(binding.root) {
+    // display one comment
+    inner class CommentViewHolder(private val binding: ItemCommentBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         fun bind(comment: Comment) {
             binding.textViewUserName.text = comment.userName
             binding.textViewComment.text = comment.text

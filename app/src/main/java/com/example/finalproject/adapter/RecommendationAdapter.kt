@@ -18,7 +18,6 @@
     import com.google.firebase.database.DatabaseError
     import android.util.Log
 
-
     class RecommendationAdapter(
         private var recommendations: MutableList<Pair<String, Recommendation>>,
         private val onItemClick: (String) -> Unit,
@@ -27,6 +26,7 @@
         private val isProfileView: Boolean
     ) : RecyclerView.Adapter<RecommendationAdapter.RecommendationViewHolder>() {
         companion object {
+            // 2 views for the main feed and profile page
             private const val VIEW_TYPE_PROFILE = 1
             private const val VIEW_TYPE_MAIN_FEED = 2
         }
@@ -54,11 +54,13 @@
             return if (isProfileView) VIEW_TYPE_PROFILE else VIEW_TYPE_MAIN_FEED
         }
 
+        //after adding new recommendaion
         fun updateRecommendations(newRecommendations: List<Pair<String, Recommendation>>) {
             recommendations = newRecommendations.toMutableList()
             notifyDataSetChanged()
         }
 
+        //update recommendations data after click on like
         fun updateLikeStatus(position: Int, updatedRecommendation: Recommendation) {
             if (position in recommendations.indices) {
                 recommendations[position] = recommendations[position].first to updatedRecommendation
@@ -119,19 +121,18 @@
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val userName =
                             snapshot.child("username").getValue(String::class.java) ?: "Unknown"
-                        val userId = recommendation.userId
                         username?.text = userName
-
+                        val userId = recommendation.userId
                         val profilePicRef = storage.reference.child("profile_images/$userId.jpg")
                         profilePicRef.downloadUrl.addOnSuccessListener { uri ->
                             // Load the image using Glide
                             Glide.with(itemView.context)
                                 .load(uri)
-                                .placeholder(R.drawable.profile2) // Placeholder image
-                                .circleCrop() // Circular crop
-                                .into(profileImage ?: return@addOnSuccessListener) // Ensure profileImage is not null
+                                .placeholder(R.drawable.profile2)
+                                .circleCrop()
+                                .into(profileImage ?: return@addOnSuccessListener)
                         }.addOnFailureListener {
-                            // Set placeholder image in case of failure
+                            // Set default image in case of failure
                             profileImage?.setImageResource(R.drawable.profile2)
                         }
                     }

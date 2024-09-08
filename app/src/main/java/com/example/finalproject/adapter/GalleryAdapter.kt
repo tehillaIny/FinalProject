@@ -14,7 +14,8 @@ import androidx.core.content.ContextCompat
 
 class GalleryAdapter(private val imageUrls: List<String>, private val context: Context) :
     RecyclerView.Adapter<GalleryAdapter.GalleryViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GalleryViewHolder {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GalleryViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_gallery_image, parent, false)
         return GalleryViewHolder(view)
     }
@@ -34,6 +35,7 @@ class GalleryAdapter(private val imageUrls: List<String>, private val context: C
         return imageUrls.size
     }
 
+    //present one image in a dialog
     private fun showImageDialog(imageUrl: String) {
         Log.d("ImageURL", "URL: $imageUrl")
         val builder = AlertDialog.Builder(context, R.style.DialogTheme)
@@ -53,6 +55,7 @@ class GalleryAdapter(private val imageUrls: List<String>, private val context: C
         imageView.setImageResource(R.drawable.error)
     }
 
+    //diaplay one item in the adpater
     class GalleryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.imageViewGallery)
     }

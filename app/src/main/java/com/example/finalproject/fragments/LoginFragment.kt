@@ -26,8 +26,8 @@ class LoginFragment : Fragment() {
 
         // Log in button click listener
         binding.buttonLogin.setOnClickListener {
-            val email = binding.editTextEmail.text.toString()
-            val password = binding.editTextPassword.text.toString()
+            val email = binding.editTextEmail.text.toString().trim()
+            val password = binding.editTextPassword.text.toString().trim()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 loginUser(email, password)
@@ -49,7 +49,6 @@ class LoginFragment : Fragment() {
                 if (task.isSuccessful) {
                     // Log-in success, update UI with the signed-in user's information
                     Toast.makeText(requireContext(), "Log-in successful!", Toast.LENGTH_SHORT).show()
-                    //move to the main app activity
                     val intent = Intent(requireContext(), MainActivityApp::class.java)
                     startActivity(intent)
                     requireActivity().finish()

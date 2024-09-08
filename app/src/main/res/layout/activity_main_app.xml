@@ -37,14 +37,16 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- Logo Image View -->
-        <ImageView
-            android:id="@+id/logoImageView"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
-            android:contentDescription="@string/logo_image"
-            android:src="@drawable/logo"
-            android:scaleType="fitCenter"
+        <TextView
+            android:id="@+id/logoTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="The Perfect Plate"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="@android:color/white"
+            android:gravity="center"
+            android:background="@android:color/transparent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -107,7 +107,6 @@ class PostPageFragment : Fragment() {
                         snapshot.child("username").getValue(String::class.java) ?: "Unknown"
                     binding.textViewUserName.text = userName
                     val profilePicRef = storage.reference.child("profile_images/$userId.jpg")
-
                     profilePicRef.downloadUrl.addOnSuccessListener { uri ->
                         if (isAdded) {
                             Glide.with(requireContext())

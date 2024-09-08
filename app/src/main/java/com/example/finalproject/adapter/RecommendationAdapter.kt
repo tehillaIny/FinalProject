@@ -17,7 +17,7 @@
     import com.google.firebase.database.DataSnapshot
     import com.google.firebase.database.DatabaseError
     import android.util.Log
-    import android.net.Uri
+
 
     class RecommendationAdapter(
         private var recommendations: MutableList<Pair<String, Recommendation>>,
@@ -120,37 +120,18 @@
                         val userName =
                             snapshot.child("username").getValue(String::class.java) ?: "Unknown"
                         val userId = recommendation.userId
-                        val profilePicRef = storage.reference.child("profile_images/$userId.jpg")
-                        Log.d(
-                            "RecommendationAdapter",
-                            "Fetching image from path: profile_images/$userId.jpg"
-                        )
-
                         username?.text = userName
 
-                        profilePicRef.listAll().addOnSuccessListener { result ->
-                            if (result.items.isEmpty()) {
-                                // Handle the case where the image does not exist
-                                profileImage?.setImageResource(R.drawable.profile2)
-                            } else {
-                                // Image exists, proceed with download URL
-                                profilePicRef.downloadUrl.addOnSuccessListener { uri ->
-                                    Glide.with(itemView.context)
-                                        .load(uri)
-                                        .placeholder(R.drawable.profile2)
-                                        .circleCrop()
-                                        .into(profileImage ?: return@addOnSuccessListener)
-                                }.addOnFailureListener { exception ->
-                                    Log.e(
-                                        "RecommendationAdapter",
-                                        "Failed to load profile image",
-                                        exception
-                                    )
-                                    profileImage?.setImageResource(R.drawable.profile2)
-                                }
-                            }
-                        }.addOnFailureListener { exception ->
-                            Log.e("RecommendationAdapter", "Failed to list images", exception)
+                        val profilePicRef = storage.reference.child("profile_images/$userId.jpg")
+                        profilePicRef.downloadUrl.addOnSuccessListener { uri ->
+                            // Load the image using Glide
+                            Glide.with(itemView.context)
+                                .load(uri)
+                                .placeholder(R.drawable.profile2) // Placeholder image
+                                .circleCrop() // Circular crop
+                                .into(profileImage ?: return@addOnSuccessListener) // Ensure profileImage is not null
+                        }.addOnFailureListener {
+                            // Set placeholder image in case of failure
                             profileImage?.setImageResource(R.drawable.profile2)
                         }
                     }

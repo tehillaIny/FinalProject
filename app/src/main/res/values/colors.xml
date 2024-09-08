@@ -3,4 +3,5 @@
     <color name="colorAccent">#ffffff</color>
     <color name="white">#ffffff</color>
     <color name="nav_item_color">#097969</color>
+    <color name="feed_background_color">#F0F0F0</color>
 </resources>

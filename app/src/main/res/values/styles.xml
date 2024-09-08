@@ -11,5 +11,10 @@
     <style name="BottomNavigationViewStyle" parent="Widget.Design.BottomNavigationView">
         <item name="android:background">@color/white</item>
     </style>
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorPrimary">#097969</item>
+        <item name="colorAccent">#097969</item>
+        <item name="android:background">@color/white</item>
+    </style>
 
 </resources>

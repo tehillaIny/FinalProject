@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.app.AlertDialog
 import android.content.Context
 import android.util.Log
+import androidx.core.content.ContextCompat
 
 class GalleryAdapter(private val imageUrls: List<String>, private val context: Context) :
     RecyclerView.Adapter<GalleryAdapter.GalleryViewHolder>() {
@@ -35,7 +36,7 @@ class GalleryAdapter(private val imageUrls: List<String>, private val context: C
 
     private fun showImageDialog(imageUrl: String) {
         Log.d("ImageURL", "URL: $imageUrl")
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialog.Builder(context, R.style.DialogTheme)
         val imageView = ImageView(context).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,

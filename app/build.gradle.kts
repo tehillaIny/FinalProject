@@ -74,6 +74,6 @@ dependencies {
     implementation ("androidx.navigation:navigation-ui-ktx:2.7.0")
     implementation ("androidx.navigation:navigation-fragment-ktx:2.7.0")
     implementation ("androidx.recyclerview:recyclerview:1.2.1")
-    implementation ("com.github.bumptech.glide:glide:4.14.2")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.11.0")
+    implementation ("com.github.bumptech.glide:glide:4.14.2")
 }

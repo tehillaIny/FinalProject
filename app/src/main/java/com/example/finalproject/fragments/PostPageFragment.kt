@@ -42,20 +42,21 @@ class PostPageFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentPostPageBinding.inflate(inflater, container, false)
-        val view = binding?.root
+        //val view = binding?.root
 
         database = FirebaseDatabase.getInstance()
         commentsRef = FirebaseDatabase.getInstance().getReference("comments")
         recommendationId = args.recommendationId
         auth = FirebaseAuth.getInstance()
 
-        return view
+        //return view
+        return _binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fetchRecommendation()
-        binding?.buttonAddComment?.setOnClickListener {
+        binding.buttonAddComment?.setOnClickListener {
             addComment()
         }
     }
@@ -78,7 +79,7 @@ class PostPageFragment : Fragment() {
     }
     private fun bindRecommendation(recommendation: Recommendation) {
         if (_binding == null) {
-            Log.e("PostPageFragment", "Binding is null")
+            Log.e("PostPageFragment", "Binding is null, cannot bind recommendation")
             return
         }
         binding.textViewRestaurantName.text = recommendation.restaurantName
@@ -101,18 +102,23 @@ class PostPageFragment : Fragment() {
 
         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val userName = snapshot.child("username").getValue(String::class.java) ?: "Unknown"
-                binding.textViewUserName.text = userName
-                val profilePicRef = storage.reference.child("profile_images/$userId.jpg")
+                _binding?.let { binding ->
+                    val userName =
+                        snapshot.child("username").getValue(String::class.java) ?: "Unknown"
+                    binding.textViewUserName.text = userName
+                    val profilePicRef = storage.reference.child("profile_images/$userId.jpg")
 
-                profilePicRef.downloadUrl.addOnSuccessListener { uri ->
-                    Glide.with(this@PostPageFragment)
-                        .load(uri)
-                        .placeholder(R.drawable.profile2)
-                        .circleCrop()
-                        .into(binding.imageViewProfile)
-                }.addOnFailureListener {
-                    binding.imageViewProfile.setImageResource(R.drawable.profile2)
+                    profilePicRef.downloadUrl.addOnSuccessListener { uri ->
+                        if (isAdded) {
+                            Glide.with(requireContext())
+                                .load(uri)
+                                .placeholder(R.drawable.profile2)
+                                .circleCrop()
+                                .into(binding.imageViewProfile)
+                        }
+                    }.addOnFailureListener {
+                        binding.imageViewProfile.setImageResource(R.drawable.profile2)
+                    }
                 }
             }
 
@@ -125,6 +131,7 @@ class PostPageFragment : Fragment() {
     private fun fetchComments() {
         commentsRef.child(recommendationId).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                if (_binding == null) return
                 val comments = mutableListOf<Comment>()
                 snapshot.children.forEach { commentSnapshot ->
                     val comment = commentSnapshot.getValue(Comment::class.java)
@@ -133,13 +140,14 @@ class PostPageFragment : Fragment() {
                 updateCommentsUI(comments)
             }
             override fun onCancelled(error: DatabaseError) {
-                Log.e("fetchRecommendation", "Failed to load comments data.", error.toException())
+                Log.e("fetchComments", "Failed to load comments data.", error.toException())
 
             }
         })
     }
 
     private fun updateCommentsUI(comments: List<Comment>) {
+        if (_binding == null) return
         val adapter = CommentsAdapter(comments)
         binding.recyclerViewComments.layoutManager = LinearLayoutManager(context)
         binding.recyclerViewComments.adapter = adapter

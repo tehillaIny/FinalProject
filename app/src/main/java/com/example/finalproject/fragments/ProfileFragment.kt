@@ -47,19 +47,19 @@ class ProfileFragment : Fragment() {
 
         loadUserRecommendations() // Load user recommendations
 
-        binding.editProfileButton.setOnClickListener {
+        binding?.editProfileButton?.setOnClickListener {
             toggleEditMode(true)
         }
         // save changes
-        binding.saveButton.setOnClickListener {
+        binding?.saveButton?.setOnClickListener {
             verifyCurrentPasswordAndSave()
         }
 
-        binding.changeProfileImageTextView.setOnClickListener {
+        binding?.changeProfileImageTextView?.setOnClickListener {
             selectImageFromGallery()
         }
 
-        return binding.root
+        return binding?.root
     }
 
     // functions for gallery display of user's posts
@@ -125,41 +125,46 @@ class ProfileFragment : Fragment() {
             userRef.get().addOnSuccessListener { dataSnapshot ->
                 val displayName = dataSnapshot.child("username").getValue(String::class.java)
 
-                binding.usernameTextView.text = displayName ?: "No Display Name"
-                binding.usernameEditText.setText(displayName ?: "No Display Name")
-
-                // Display email
-                val email = user.email
-                binding.emailTextView.text = email ?: "No Email"
-
+                // Safely update UI only if the fragment view is still present
+                _binding?.apply {
+                    usernameTextView.text = displayName ?: "No Display Name"
+                    usernameEditText.setText(displayName ?: "No Display Name")
+                    // Display email
+                    val email = user.email
+                    emailTextView.text = email ?: "No Email"
+                }
                 // Fetch and display the user's profile image from Firebase Storage
                 val storageRef = storage.reference.child("profile_images/$userId.jpg")
                 storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    Glide.with(this)
-                        .load(uri)
-                        .placeholder(R.drawable.profile2) // Placeholder image while loading
-                        .into(binding.profileImageView)
+                    _binding?.let {
+                        Glide.with(this)
+                            .load(uri)
+                            .placeholder(R.drawable.profile2) // Placeholder image while loading
+                            .into(binding.profileImageView)
+                    }
                 }.addOnFailureListener {
                     // Handle the error if the image retrieval fails
                     Log.e("ProfileFragment", "Error loading profile image: ${it.message}")
-                    binding.profileImageView.setImageResource(R.drawable.profile2) // Default image
+                    binding?.profileImageView?.setImageResource(R.drawable.profile2) // Default image
                 }
             }
 
         } else {
-            binding.usernameTextView.text = "User not logged in"
-            binding.profileImageView.setImageResource(R.drawable.profile2) // default image
+            binding?.usernameTextView?.text = "User not logged in"
+            binding?.profileImageView?.setImageResource(R.drawable.profile2) // default image
         }
     }
 
     // Edit profile //
     private fun toggleEditMode(isEditing: Boolean) {
-        binding.usernameTextView.visibility = if (isEditing) View.GONE else View.VISIBLE
-        binding.emailTextView.visibility = if (isEditing) View.GONE else View.VISIBLE
-        binding.editProfileButton.visibility = if (isEditing) View.GONE else View.VISIBLE
+        _binding?.apply {
+            usernameTextView.visibility = if (isEditing) View.GONE else View.VISIBLE
+            emailTextView.visibility = if (isEditing) View.GONE else View.VISIBLE
+            editProfileButton.visibility = if (isEditing) View.GONE else View.VISIBLE
 
-        binding.editProfileLayout.visibility = if (isEditing) View.VISIBLE else View.GONE
-        binding.galleryRecyclerView.visibility = if (isEditing) View.GONE else View.VISIBLE
+            editProfileLayout.visibility = if (isEditing) View.VISIBLE else View.GONE
+            galleryRecyclerView.visibility = if (isEditing) View.GONE else View.VISIBLE
+        }
     }
 
     // Verify current password and then save changes
@@ -170,7 +175,7 @@ class ProfileFragment : Fragment() {
             val email = user.email!!
 
             if (currentPassword.isEmpty()) {
-                binding.currentPasswordEditText.error = "Current password is required"
+                _binding?.currentPasswordEditText?.error = "Current password is required"
                 return
             }
 
@@ -183,7 +188,7 @@ class ProfileFragment : Fragment() {
                     } else {
                         // Current password is incorrect, show error message
                         Log.e("ProfileFragment", "Current password is incorrect: ${authTask.exception?.message}")
-                        binding.currentPasswordEditText.error = "Current password is incorrect"
+                        _binding?.currentPasswordEditText?.error = "Current password is incorrect"
                     }
                 }
         }
@@ -195,20 +200,20 @@ class ProfileFragment : Fragment() {
         if (user != null) {
             val userId = user.uid
             val userRef = database.reference.child("users").child(userId)
-            val newUsername = binding.usernameEditText.text.toString()
-            val newPassword = binding.passwordEditText.text.toString()
-            val confirmPassword = binding.confirmPasswordEditText.text.toString()
+            val newUsername = _binding?.usernameEditText?.text.toString()
+            val newPassword = _binding?.passwordEditText?.text.toString()
+            val confirmPassword = _binding?.confirmPasswordEditText?.text.toString()
 
             // Check if passwords match
             if (newPassword.isNotEmpty() && newPassword != confirmPassword) {
                 Log.e("ProfileFragment", "Passwords do not match.")
-                binding.confirmPasswordEditText.error = "Passwords do not match"
+                _binding?.confirmPasswordEditText?.error = "Passwords do not match"
                 return
             }
             // Check if passwords are at least 6 characters long
             if (newPassword.isNotEmpty() && newPassword.length < 6) {
                 Log.e("ProfileFragment", "Password is too short.")
-                binding.passwordEditText.error = "Password must be at least 6 characters long"
+                _binding?.passwordEditText?.error = "Password must be at least 6 characters long"
                 return
             }
 
@@ -222,7 +227,7 @@ class ProfileFragment : Fragment() {
                         Log.d("ProfileFragment", "User password updated successfully.")
                     } else {
                         Log.e("ProfileFragment", "Failed to update password: ${task.exception?.message}")
-                        binding.passwordEditText.error = "Failed to update password: ${task.exception?.message}"
+                        _binding?.passwordEditText?.error = "Failed to update password: ${task.exception?.message}"
                     }
                 }
             }
@@ -288,7 +293,3 @@ class ProfileFragment : Fragment() {
         private const val REQUEST_CODE_IMAGE_PICK = 1001
     }
 }
-
-
-
-

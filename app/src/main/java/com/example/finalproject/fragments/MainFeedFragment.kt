@@ -28,6 +28,12 @@ class MainFeedFragment : Fragment() {
     private var scrollPosition: Int = 0
     private var scrollOffset: Int = 0
 
+    private var lastClickTime = 0L
+    private val clickInterval = 1000L
+
+    private var lastLikeClickTime = 0L
+    private val likeClickInterval = 1000L
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -54,11 +60,22 @@ class MainFeedFragment : Fragment() {
         adapter = RecommendationAdapter(
             mutableListOf(),
             onItemClick = { recommendationId ->
-                val action = MainFeedFragmentDirections.actionMainFeedFragmentToPostPageFragment(recommendationId)
-                findNavController().navigate(action)
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastClickTime > clickInterval) {
+                    lastClickTime = currentTime
+                    val action =
+                        MainFeedFragmentDirections.actionMainFeedFragmentToPostPageFragment(
+                            recommendationId
+                        )
+                    findNavController().navigate(action)
+                }
             },
             onLikeClick = { recommendation, position ->
-                updateLikeStatus(recommendation, position)
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastLikeClickTime > likeClickInterval) {
+                    lastLikeClickTime = currentTime
+                    updateLikeStatus(recommendation, position)
+                }
             },
             currentUserId = auth.currentUser?.uid ?: "",
             isProfileView = false // Set to false for MainFeedFragment

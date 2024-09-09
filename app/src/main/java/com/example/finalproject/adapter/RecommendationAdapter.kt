@@ -21,7 +21,7 @@
     class RecommendationAdapter(
         private var recommendations: MutableList<Pair<String, Recommendation>>,
         private val onItemClick: (String) -> Unit,
-        private val onLikeClick: (Recommendation, Int) -> Unit,
+        private val onLikeClick: ((Recommendation, Int) -> Unit)? = null,
         private val currentUserId: String,
         private val isProfileView: Boolean
     ) : RecyclerView.Adapter<RecommendationAdapter.RecommendationViewHolder>() {
@@ -84,7 +84,7 @@
                 recommendationId: String,
                 recommendation: Recommendation,
                 onItemClick: (String) -> Unit,
-                onLikeClick: (Recommendation, Int) -> Unit,
+                onLikeClick: ((Recommendation, Int) -> Unit)?,
                 currentUserId: String,
                 position: Int,
                 usersDatabase: DatabaseReference,
@@ -102,7 +102,7 @@
                     }
 
                     likeButton?.setOnClickListener {
-                        onLikeClick(recommendation, position)
+                        onLikeClick?.invoke(recommendation, position)
                     }
                 }
             }

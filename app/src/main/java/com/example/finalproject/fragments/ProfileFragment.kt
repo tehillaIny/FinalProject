@@ -44,7 +44,6 @@ class ProfileFragment : Fragment() {
 
         populateUserProfile() // Fetch user data from Firebase and populate the UI
         setupRecyclerView() // Setup RecyclerView
-
         loadUserRecommendations() // Load user recommendations
 
         binding?.editProfileButton?.setOnClickListener {
@@ -66,8 +65,8 @@ class ProfileFragment : Fragment() {
     private fun setupRecyclerView() {
         recommendationAdapter = RecommendationAdapter(
             recommendations,
-            { recommendationId -> /* Handle item click */ },
-            { recommendation, position -> updateLikeStatus(recommendation, position) },
+            { recommendationId -> },
+            null,
             auth.uid ?: "",
             isProfileView = true // Use profile view layout
         )
@@ -80,6 +79,7 @@ class ProfileFragment : Fragment() {
     private fun loadUserRecommendations() {
         val userId = auth.uid
         if (userId != null) {
+            //get all the recommendations of the current user
             database.reference.child("recommendations").orderByChild("userId").equalTo(userId)
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
@@ -101,20 +101,6 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    private fun updateLikeStatus(recommendation: Recommendation, position: Int) {
-        val userId = auth.uid ?: return
-        val updatedLikeStatus = !recommendation.likes[userId]!!
-
-        recommendation.likes[userId] = updatedLikeStatus
-        recommendation.likeCount += if (updatedLikeStatus) 1 else -1
-
-        database.reference.child("recommendations")
-            .child(recommendationAdapter.getRecommendationId(position))
-            .setValue(recommendation)
-
-        recommendationAdapter.updateLikeStatus(position, recommendation)
-    }
-
     private fun populateUserProfile() {
         val user = auth.currentUser
         if (user != null) {
@@ -125,7 +111,7 @@ class ProfileFragment : Fragment() {
             userRef.get().addOnSuccessListener { dataSnapshot ->
                 val displayName = dataSnapshot.child("username").getValue(String::class.java)
 
-                // Safely update UI only if the fragment view is still present
+                // update UI only if the fragment view is still present
                 _binding?.apply {
                     usernameTextView.text = displayName ?: "No Display Name"
                     usernameEditText.setText(displayName ?: "No Display Name")
@@ -231,9 +217,6 @@ class ProfileFragment : Fragment() {
                     }
                 }
             }
-
-            // Optionally show a message to the user
-            Log.d("ProfileFragment", "User profile updated successfully.")
 
             // Switch back to view mode
             toggleEditMode(false)

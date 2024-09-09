@@ -49,7 +49,7 @@ class SignUpFragment : Fragment() {
                 Toast.makeText(requireContext(), "Please fill out all fields", Toast.LENGTH_SHORT).show()
             }
         }
-        // Log In button click listener
+        // Go to Log In button click listener
         binding.buttonGoToLogIn.setOnClickListener {
             findNavController().navigate(R.id.action_signUpFragment_to_logInFragment)
         }

@@ -42,21 +42,19 @@ class PostPageFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentPostPageBinding.inflate(inflater, container, false)
-        //val view = binding?.root
 
         database = FirebaseDatabase.getInstance()
         commentsRef = FirebaseDatabase.getInstance().getReference("comments")
         recommendationId = args.recommendationId
         auth = FirebaseAuth.getInstance()
 
-        //return view
         return _binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fetchRecommendation()
-        binding.buttonAddComment?.setOnClickListener {
+        binding.buttonAddComment.setOnClickListener {
             addComment()
         }
     }
@@ -70,13 +68,13 @@ class PostPageFragment : Fragment() {
                     bindRecommendation(it)
                     fetchComments()
                 }
-
             }
             override fun onCancelled(error: DatabaseError) {
                 Log.e("fetchRecommendation", "Failed to load recommendation data.", error.toException())
             }
         })
     }
+    //bind all the data of the recommendation
     private fun bindRecommendation(recommendation: Recommendation) {
         if (_binding == null) {
             Log.e("PostPageFragment", "Binding is null, cannot bind recommendation")
@@ -95,6 +93,7 @@ class PostPageFragment : Fragment() {
         binding.galleryRecyclerView.adapter = galleryAdapter
     }
 
+    //fetch the user name and profile pic of the user that upload the recommendation
     private fun fetchUserProfile(userId: String) {
         val userDatabase = FirebaseDatabase.getInstance().getReference("users")
         val storage = FirebaseStorage.getInstance()
@@ -120,13 +119,13 @@ class PostPageFragment : Fragment() {
                     }
                 }
             }
-
             override fun onCancelled(error: DatabaseError) {
                 Log.e("PostPageFragment", "Failed to load user data.", error.toException())
             }
         })
     }
 
+    //fetch all the existing comments of the recommendation
     private fun fetchComments() {
         commentsRef.child(recommendationId).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -152,6 +151,7 @@ class PostPageFragment : Fragment() {
         binding.recyclerViewComments.adapter = adapter
     }
 
+    //after click on add new comment
     private fun addComment() {
         val commentText = binding.editTextComment.text.toString()
         if (commentText.isNotBlank()) {

@@ -89,6 +89,7 @@ class MainFeedFragment : Fragment() {
         return view
     }
 
+    //to save the position of scrolling when exit from the feed
     override fun onPause() {
         super.onPause()
         val layoutManager = recyclerView.layoutManager as LinearLayoutManager
@@ -97,7 +98,7 @@ class MainFeedFragment : Fragment() {
         scrollOffset = view?.top ?: 0
         Log.d("MainFeedFragment", "Saved scrollPosition: $scrollPosition, scrollOffset: $scrollOffset")
     }
-
+    //to return the last position when back to the feed
     override fun onResume() {
         super.onResume()
         val layoutManager = recyclerView.layoutManager as LinearLayoutManager
@@ -129,6 +130,7 @@ class MainFeedFragment : Fragment() {
         })
     }
 
+    //after user click on like(add/remove)
     private fun updateLikeStatus(recommendation: Recommendation, position: Int) {
         val recommendationId = adapter.getRecommendationId(position)
         val currentUserId = auth.currentUser?.uid ?: return
